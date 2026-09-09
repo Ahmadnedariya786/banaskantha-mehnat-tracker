@@ -8,6 +8,7 @@ import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
 import { Calendar, Users, MapPin, Download, Share2, Edit3, Trash2, Search, CheckCircle, Plus } from 'lucide-react';
+import { formatDate } from '../lib/utils';
 
 export const PastReports: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ export const PastReports: React.FC = () => {
   };
 
   const handleShareWhatsApp = (report: SavedReport) => {
-    const text = `બનાસકાંઠા સ્ટુડન્ટ મહેનત ટ્રેકર\nહલકો: ${report.halqa} | તારીખ: ${report.date}\nકુલ સ્ટુડન્ટ: ${getTotalStudents(report.stats)}`;
+    const text = `બનાસકાંઠા સ્ટુડન્ટ મહેનત ટ્રેકર\nહલકો: ${report.halqa} | તારીખ: ${formatDate(report.date)}\nકુલ સ્ટુડન્ટ: ${getTotalStudents(report.stats)}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -71,7 +72,7 @@ export const PastReports: React.FC = () => {
     ];
     const rows: any[][] = [
       ["બનાસકાંઠા સ્ટુડન્ટ મહેનત રિપોર્ટ"],
-      ["હલકો:", report.halqa, "તારીખ:", report.date],
+      ["હલકો:", report.halqa, "તારીખ:", formatDate(report.date)],
       [],
       ["સ્ટુડન્ટ આંકડા"],
       ["કુલ સ્ટુડન્ટની સંખ્યા", getTotalStudents(report.stats)],
@@ -120,7 +121,7 @@ export const PastReports: React.FC = () => {
     reports.forEach((report) => {
       const rows: any[][] = [
         ["બનાસકાંઠા સ્ટુડન્ટ મહેનત રિપોર્ટ"],
-        ["હલકો:", report.halqa, "તારીખ:", report.date],
+        ["હલકો:", report.halqa, "તારીખ:", formatDate(report.date)],
         [],
         ["સ્ટુડન્ટ આંકડા"],
         ["કુલ સ્ટુડન્ટની સંખ્યા", getTotalStudents(report.stats)],
@@ -251,7 +252,7 @@ export const PastReports: React.FC = () => {
                       <MapPin size={16} /> {report.halqa}
                     </div>
                     <div className="flex items-center gap-2 text-sub text-xs mt-1 font-num">
-                      <Calendar size={12} /> {report.date}
+                      <Calendar size={12} /> {formatDate(report.date)}
                     </div>
                   </div>
                   <div className="bg-acc/10 text-acc px-3 py-1 rounded-full flex items-center gap-1.5 shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)]">

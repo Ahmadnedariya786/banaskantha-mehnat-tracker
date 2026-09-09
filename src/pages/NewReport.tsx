@@ -6,7 +6,7 @@ import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
 import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, formatDate } from '../lib/utils';
 
 // Constants
 const DEFAULT_HALQAS = ['પાલનપુર', 'ડીસા', 'ધાનેરા', 'થરાદ'];
@@ -45,7 +45,7 @@ export const NewReport: React.FC = () => {
 
   // Real Actions
   const generateReportText = () => {
-    return `બનાસકાંઠા સ્ટુડન્ટ મહેનત ટ્રેકર\nહલકો: ${halqa || '-'} | તારીખ: ${date}\nકુલ સ્ટુડન્ટ: ${totalStudents}\n\nપ્રવૃત્તિ સારાંશ:\n` + 
+    return `બનાસકાંઠા સ્ટુડન્ટ મહેનત ટ્રેકર\nહલકો: ${halqa || '-'} | તારીખ: ${formatDate(date)}\nકુલ સ્ટુડન્ટ: ${totalStudents}\n\nપ્રવૃત્તિ સારાંશ:\n` + 
     ACTIVITY_KEYS.map(k => `${t(k as any)}: ${activities[k]?.maujuda || '-'}`).join('\n') + 
     `\nમશવારો: ${activities['mashwara']?.maujuda || '-'}\nખાસ નોંધ: ${notes}`;
   };
@@ -102,7 +102,7 @@ export const NewReport: React.FC = () => {
   const handleDownloadExcel = () => {
     const rows: any[][] = [
       ["બનાસકાંઠા સ્ટુડન્ટ મહેનત રિપોર્ટ"],
-      ["હલકો:", halqa || '-', "તારીખ:", date],
+      ["હલકો:", halqa || '-', "તારીખ:", formatDate(date)],
       [],
       ["સ્ટુડન્ટ આંકડા"],
       ["કુલ સ્ટુડન્ટની સંખ્યા", totalStudents],
@@ -347,7 +347,7 @@ export const NewReport: React.FC = () => {
           <div className="flex-1">
             <label className="text-xs tracking-wider text-sub font-medium font-gujarati">{t('label.date' as any)}</label>
             <div className="w-full font-num text-lg font-bold text-txt">
-              {date || '-'}
+              {date ? formatDate(date) : '-'}
             </div>
           </div>
         </div>
@@ -553,7 +553,7 @@ export const NewReport: React.FC = () => {
         <h1 className="text-2xl font-bold mb-4 border-b border-black pb-2">બનાસકાંઠા સ્ટુડન્ટ મહેનત રિપોર્ટ</h1>
         <div className="flex justify-between mb-4 font-bold text-lg">
           <span>હલકો: {halqa || '-'}</span>
-          <span>તારીખ: {date}</span>
+          <span>તારીખ: {formatDate(date)}</span>
         </div>
         
         <h2 className="text-xl font-bold mb-2">સ્ટુડન્ટ આંકડા (કુલ: {totalStudents})</h2>
