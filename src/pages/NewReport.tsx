@@ -376,12 +376,12 @@ export const NewReport: React.FC = () => {
                         key={d}
                         onClick={() => { setDate(fullDate); setShowCalendar(false); }}
                         className={cn(
-                          "aspect-square rounded-full flex items-center justify-center font-num text-sm ",
+                          "aspect-square rounded-full flex items-center justify-center font-num text-sm transition-all duration-200",
                           isSelected 
-                            ? "bg-gradient-to-br from-primary to-blue-600 text-white shadow-md shadow-primary/30" 
+                            ? "bg-acc text-white shadow-md font-bold" 
                             : isToday 
-                              ? "bg-acc text-acc font-bold"
-                              : "hover:bg-card"
+                              ? "ring-1 ring-acc/40 font-bold"
+                              : "text-txt hover:bg-card"
                         )}
                       >
                         {d}

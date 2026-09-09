@@ -201,12 +201,12 @@ export const PastReports: React.FC = () => {
 
       {/* Top Actions */}
       <div className="flex gap-3">
-        <LiquidButton variant="primary" className="flex-1" onClick={() => navigate('/')}>
-          <Plus size={18} className="mr-2" />
+        <LiquidButton variant="primary" className="flex-1 flex flex-row items-center justify-center gap-2 whitespace-nowrap px-6 py-3.5 max-[380px]:text-sm" onClick={() => navigate('/')}>
+          <Plus size={18} />
           <span className="font-gujarati">{t('nav.new_report')}</span>
         </LiquidButton>
-        <LiquidButton variant="neutral" className="flex-1 text-acc border-emerald-500/30" onClick={handleDownloadAllExcel}>
-          <Download size={18} className="mr-2" />
+        <LiquidButton variant="neutral" className="flex-1 flex flex-row items-center justify-center gap-2 whitespace-nowrap px-6 py-3.5 max-[380px]:text-sm text-acc border-emerald-500/30" onClick={handleDownloadAllExcel}>
+          <Download size={18} />
           <span className="font-gujarati">{t('past_reports.btn_all_excel' as any)}</span>
         </LiquidButton>
       </div>

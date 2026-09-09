@@ -78,18 +78,21 @@ export const Dashboard: React.FC = () => {
       </header>
 
       {/* Hero Stat */}
-      <GlassCard className="bg-gradient-premium shadow-xl text-white p-6 relative overflow-hidden">
+      <GlassCard 
+        className="shadow-xl text-white p-6 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, rgb(var(--grad-a)), rgb(var(--grad-b)))' }}
+      >
         <div className="absolute top-0 right-0 w-32 h-32 bg-card rounded-full blur-2xl -translate-y-1/2 translate-x-1/4" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
-            <h3 className="font-gujarati text-sub font-medium mb-1">{t('stat.students_count')}</h3>
-            <div className="text-5xl font-num font-bold">{totalStudents.toLocaleString('en-IN')}</div>
+            <h3 className="font-gujarati text-sub font-medium mb-1 text-white/80">{t('stat.students_count')}</h3>
+            <div className="text-5xl font-num font-bold text-white">{totalStudents.toLocaleString('en-IN')}</div>
             <div className="flex items-center gap-1 text-emerald-400 text-sm mt-2 font-num">
               <TrendingUp size={16} /> +0% 
-              <span className="font-gujarati text-sub ml-1">ગયા માસ કરતા</span>
+              <span className="font-gujarati text-white/70 ml-1">ગયા માસ કરતા</span>
             </div>
           </div>
-          <div className="w-16 h-16 rounded-full bg-card backdrop-blur-md flex items-center justify-center shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] overflow-hidden">
+          <div className="w-16 h-16 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center shadow-[inset_0_0_0_1px_rgb(255_255_255/0.15)] overflow-hidden">
             <Users size={32} className="text-white" />
           </div>
         </div>
