@@ -1,0 +1,5 @@
+html[data-theme="outdoor"]{--bg:238 241 248;--card:255 255 255;--text:22 33 62;--sub:90 107 140;--acc:37 99 235;--acc2:59 130 246;--brd:22 33 62;--inp:255 255 255;--danger:239 68 68}
+html[data-theme="dark"]{--bg:11 18 32;--card:22 32 58;--text:255 255 255;--sub:148 163 184;--acc:59 130 246;--acc2:99 102 241;--brd:255 255 255;--inp:255 255 255;--danger:239 68 68}
+html[data-theme="premium"]{--bg:23 18 56;--card:36 22 64;--text:255 255 255;--sub:255 255 255;--acc:236 72 153;--acc2:139 92 246;--brd:255 255 255;--inp:255 255 255;--danger:239 68 68}
+html,body{background:rgb(var(--bg));color:rgb(var(--text))}
+*,*::before,*::after{transition:none !important}

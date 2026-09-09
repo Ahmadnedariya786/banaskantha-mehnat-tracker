@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Vadodara:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: light; }
+  html[data-theme="outdoor"] { --bg:238 241 248; --card:255 255 255; --text:22 33 62; --sub:90 107 140; --acc:37 99 235; --acc2:59 130 246; --brd:22 33 62; --inp:255 255 255; --danger:239 68 68; --shadow-color:22 33 62; --shadow-alpha:0.10; --inp-alpha:1; }
+  html[data-theme="dark"] { --bg:11 18 32; --card:22 32 58; --text:255 255 255; --sub:148 163 184; --acc:59 130 246; --acc2:99 102 241; --brd:255 255 255; --inp:255 255 255; --danger:239 68 68; --shadow-color:0 0 0; --shadow-alpha:0.35; --inp-alpha:0.1; }
+  html[data-theme="premium"] { --bg:23 18 56; --card:36 22 64; --text:255 255 255; --sub:255 255 255; --acc:236 72 153; --acc2:139 92 246; --brd:255 255 255; --inp:255 255 255; --danger:239 68 68; --shadow-color:0 0 0; --shadow-alpha:0.35; --inp-alpha:0.1; }
+  
+  html {
+    background: rgb(var(--bg));
+    color: rgb(var(--text));
+  }
+  
+  body {
+    @apply font-gujarati antialiased min-h-screen;
+    background: rgb(var(--bg));
+    color: rgb(var(--text));
+  }
+
+  label {
+    color: rgb(var(--text));
+  }
+
+  @media print {
+    body * { visibility: hidden; }
+    #print-report { 
+      display: block !important; 
+      position: absolute; 
+      inset: 0; 
+      background: #fff; 
+      color: #000; 
+    }
+    #print-report, #print-report * { visibility: visible; }
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply backdrop-blur-xl rounded-2xl bg-card/60;
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--brd) / 0.15),
+      0 8px 32px rgb(var(--shadow-color) / var(--shadow-alpha));
+  }
+  
+  .glass-pill {
+    @apply backdrop-blur-xl rounded-full bg-card/60;
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--brd) / 0.15),
+      0 8px 32px rgb(var(--shadow-color) / var(--shadow-alpha));
+  }
+
+  .glass-input {
+    background-color: rgb(var(--inp) / var(--inp-alpha));
+    box-shadow: inset 0 0 0 1px rgb(var(--brd) / 0.15);
+  }
+
+  .text-gradient-premium {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500;
+  }
+  
+  .bg-gradient-premium {
+    @apply bg-gradient-to-r from-pink-500 to-purple-500;
+  }
+}
+
+/* Number font utility */
+.font-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
