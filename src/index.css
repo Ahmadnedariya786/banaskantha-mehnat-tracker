@@ -6,9 +6,7 @@
 
 @layer base {
   :root { color-scheme: light; }
-  html[data-theme="outdoor"] { --bg:234 243 252; --card:255 255 255; --text:18 48 94; --sub:91 123 166; --acc:29 111 224; --acc2:56 189 248; --brd:21 60 130; --inp:255 255 255; --danger:239 68 68; --shadow-color:21 60 130; --shadow-alpha:0.08; --inp-alpha:0.7; --grad-a: 37 99 235; --grad-b: 56 189 248; }
-  html[data-theme="dark"] { --bg:11 18 32; --card:22 32 58; --text:255 255 255; --sub:148 163 184; --acc:59 130 246; --acc2:99 102 241; --brd:255 255 255; --inp:255 255 255; --danger:239 68 68; --shadow-color:0 0 0; --shadow-alpha:0.35; --inp-alpha:0.1; --grad-a: 37 99 235; --grad-b: 124 58 237; }
-  html[data-theme="premium"] { --bg:23 18 56; --card:36 22 64; --text:255 255 255; --sub:255 255 255; --acc:236 72 153; --acc2:139 92 246; --brd:255 255 255; --inp:255 255 255; --danger:239 68 68; --shadow-color:0 0 0; --shadow-alpha:0.35; --inp-alpha:0.1; --grad-a: 236 72 153; --grad-b: 168 85 247; }
+
   
   html {
     background: rgb(var(--bg));
@@ -21,13 +19,7 @@
     color: rgb(var(--text));
   }
 
-  html[data-theme="outdoor"] body {
-    background: 
-      radial-gradient(circle at 15% 50%, rgba(var(--acc) / 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(var(--acc2) / 0.08), transparent 25%),
-      linear-gradient(135deg, #EAF3FC, #D9E9F8);
-    background-attachment: fixed;
-  }
+
 
   label {
     color: rgb(var(--text));

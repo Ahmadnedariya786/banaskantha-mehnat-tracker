@@ -335,11 +335,11 @@ export const NewReport: React.FC = () => {
         </div>
       </section>
 
-      {/* Date Picker (Inline Glass Calendar Panel) */}
-      <GlassCard className="order-2 xl:order-none p-4 space-y-4">
+      {/* Date Picker (Trigger Card) */}
+      <GlassCard className="order-2 xl:order-none p-4">
         <div 
           className="flex items-center gap-4 cursor-pointer"
-          onClick={() => setShowCalendar(!showCalendar)}
+          onClick={() => setShowCalendar(true)}
         >
           <div className="w-12 h-12 rounded-full bg-acc/10 flex items-center justify-center text-acc shrink-0">
             <Calendar size={24} />
@@ -347,61 +347,62 @@ export const NewReport: React.FC = () => {
           <div className="flex-1">
             <label className="text-xs tracking-wider text-sub font-medium font-gujarati">{t('label.date' as any)}</label>
             <div className="w-full font-num text-lg font-bold text-txt">
-              {date}
+              {date || '-'}
             </div>
           </div>
         </div>
+      </GlassCard>
 
-        <AnimatePresence>
-          {showCalendar && (
+      {/* POPUP DIALOG for Calendar */}
+      <AnimatePresence>
+        {showCalendar && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="max-w-sm w-full rounded-2xl bg-card/90 backdrop-blur-2xl p-4 shadow-2xl"
             >
-              <div className="pt-4 border-t border-brd/10 mt-2">
-                <div className="grid grid-cols-7 gap-1 text-center mb-2">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-                    <div key={i} className="text-xs font-bold text-sub/50">{d}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {calendarDays.map(d => {
-                    const fullDate = `2026-09-${d.toString().padStart(2, '0')}`;
-                    const isSelected = date === fullDate;
-                    const isToday = d === 8; // mock today
-                    return (
-                      <button
-                        key={d}
-                        onClick={() => { setDate(fullDate); setShowCalendar(false); }}
-                        className={cn(
-                          "aspect-square rounded-full flex items-center justify-center font-num text-sm transition-all duration-200",
-                          isSelected 
-                            ? "bg-acc text-white shadow-md font-bold" 
-                            : isToday 
-                              ? "ring-1 ring-acc/40 font-bold"
-                              : "text-txt hover:bg-card"
-                        )}
-                      >
-                        {d}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <LiquidButton variant="neutral" size="sm" className="flex-1 font-gujarati" onClick={() => setDate('')}>
-                    સાફ કરો
-                  </LiquidButton>
-                  <LiquidButton variant="primary" size="sm" className="flex-1 font-gujarati" onClick={() => { setDate('2026-09-08'); setShowCalendar(false); }}>
-                    આજે
-                  </LiquidButton>
-                </div>
+              <div className="grid grid-cols-7 gap-1 text-center mb-4">
+                {['રવિ', 'સોમ', 'મંગળ', 'બુધ', 'ગુરુ', 'શુક્ર', 'શનિ'].map((d, i) => (
+                  <div key={i} className="text-xs text-sub font-gujarati">{d}</div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1 mb-6">
+                {calendarDays.map(d => {
+                  const fullDate = `2026-09-${d.toString().padStart(2, '0')}`;
+                  const isSelected = date === fullDate;
+                  const isToday = d === 8; // mock today
+                  return (
+                    <button
+                      key={d}
+                      onClick={() => { setDate(fullDate); setShowCalendar(false); }}
+                      className={cn(
+                        "h-10 w-10 mx-auto rounded-full text-sm flex items-center justify-center font-num transition-all duration-200",
+                        isSelected 
+                          ? "bg-acc text-white shadow" 
+                          : isToday 
+                            ? "ring-1 ring-acc/50 text-txt"
+                            : "text-txt hover:bg-acc/10"
+                      )}
+                    >
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-3">
+                <LiquidButton variant="neutral" className="flex-1 font-gujarati py-2.5" onClick={() => { setDate(''); setShowCalendar(false); }}>
+                  સાફ કરો
+                </LiquidButton>
+                <LiquidButton variant="primary" className="flex-1 font-gujarati py-2.5" onClick={() => { setDate('2026-09-08'); setShowCalendar(false); }}>
+                  આજે
+                </LiquidButton>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </GlassCard>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Stats Grid */}
       <section className="order-3 xl:order-none grid grid-cols-2 md:grid-cols-4 gap-3">

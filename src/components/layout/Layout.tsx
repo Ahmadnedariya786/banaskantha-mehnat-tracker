@@ -41,13 +41,7 @@ export const Layout: React.FC = () => {
 
       {/* Main Content */}
       <main className="p-6 pb-28 md:pb-32 relative w-full sm:max-w-2xl lg:max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <Outlet />
-        </motion.div>
+        <Outlet />
       </main>
 
       {/* Bottom Navigation */}
