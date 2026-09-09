@@ -6,7 +6,7 @@ import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
 import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy } from 'lucide-react';
-import { cn, formatDate } from '../lib/utils';
+import { cn, formatDate, localTodayIso } from '../lib/utils';
 
 // Constants
 const DEFAULT_HALQAS = ['પાલનપુર', 'ડીસા', 'ધાનેરા', 'થરાદ'];
@@ -25,7 +25,7 @@ export const NewReport: React.FC = () => {
 
   // Form State
   const [halqa, setHalqa] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(localTodayIso());
   const [stats, setStats] = useState({
     std_10: 0, std_11: 0, std_12: 0, college: 0, engineering: 0, medical: 0, muslim_teachers: 0
   });
@@ -154,7 +154,7 @@ export const NewReport: React.FC = () => {
   useEffect(() => {
     if (draftReport && !halqa) {
       setHalqa(draftReport.halqa || '');
-      setDate(draftReport.date || new Date().toISOString().split('T')[0]);
+      setDate(draftReport.date || localTodayIso());
       setStats(draftReport.stats || stats);
       setActivities(draftReport.activities || {});
       setMashwara(draftReport.mashwara || '');
@@ -370,9 +370,11 @@ export const NewReport: React.FC = () => {
               </div>
               <div className="grid grid-cols-7 gap-1 mb-6">
                 {calendarDays.map(d => {
-                  const fullDate = `2026-09-${d.toString().padStart(2, '0')}`;
+                  const todayStr = localTodayIso();
+                  const [yyyy, mm] = todayStr.split('-');
+                  const fullDate = `${yyyy}-${mm}-${d.toString().padStart(2, '0')}`;
                   const isSelected = date === fullDate;
-                  const isToday = d === 8; // mock today
+                  const isToday = fullDate === todayStr;
                   return (
                     <button
                       key={d}
@@ -395,7 +397,7 @@ export const NewReport: React.FC = () => {
                 <LiquidButton variant="neutral" className="flex-1 font-gujarati py-2.5" onClick={() => { setDate(''); setShowCalendar(false); }}>
                   સાફ કરો
                 </LiquidButton>
-                <LiquidButton variant="primary" className="flex-1 font-gujarati py-2.5" onClick={() => { setDate('2026-09-08'); setShowCalendar(false); }}>
+                <LiquidButton variant="primary" className="flex-1 font-gujarati py-2.5" onClick={() => { setDate(localTodayIso()); setShowCalendar(false); }}>
                   આજે
                 </LiquidButton>
               </div>
