@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidSwitch } from '../components/ui/LiquidSwitch';
@@ -12,6 +13,7 @@ export const Settings: React.FC = () => {
   const [reminderTime, setReminderTime] = useState('20:00');
   const [showTimePicker, setShowTimePicker] = useState(false);
   const { theme, setTheme } = useThemeStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('SETTINGS_MOUNT');
@@ -138,7 +140,7 @@ export const Settings: React.FC = () => {
         </GlassCard>
 
         {/* Admin Link */}
-        <GlassCard hoverEffect className="p-4 flex items-center gap-3 cursor-pointer" onClick={() => window.location.href='/admin'}>
+        <GlassCard hoverEffect className="p-4 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/admin')}>
           <div className="w-10 h-10 rounded-full bg-acc/10 flex items-center justify-center text-acc">
             <Shield size={20} />
           </div>
@@ -146,7 +148,7 @@ export const Settings: React.FC = () => {
         </GlassCard>
 
         {/* Help Link */}
-        <GlassCard hoverEffect className="p-4 flex items-center gap-3 cursor-pointer" onClick={() => window.location.href='/help'}>
+        <GlassCard hoverEffect className="p-4 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/help')}>
           <div className="w-10 h-10 rounded-full bg-acc/10 flex items-center justify-center text-acc">
             <Info size={20} />
           </div>

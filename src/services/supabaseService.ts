@@ -89,6 +89,7 @@ export const supabaseService = {
     return data;
   },
   async deleteHalqa(id: string) {
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return;
     const { error } = await supabase.from('halqas').delete().eq('id', id);
     if (error) throw error;
   },

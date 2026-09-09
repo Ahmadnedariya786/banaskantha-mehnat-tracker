@@ -17,7 +17,7 @@ const ACTIVITY_KEYS = [
 ];
 
 export const NewReport: React.FC = () => {
-  const { draftReport, setDraftReport, clearDraft, customHalqas, addCustomHalqa, removeCustomHalqa, addReport } = useAppStore();
+  const { draftReport, setDraftReport, clearDraft, halqas, customHalqas, addCustomHalqa, removeCustomHalqa, addReport } = useAppStore();
   
   // Toasts
   const [showToast, setShowToast] = useState(false);
@@ -193,8 +193,14 @@ export const NewReport: React.FC = () => {
 
   const confirmDeleteHalqa = () => {
     if (halqaToDelete) {
-      removeCustomHalqa(halqaToDelete);
-      if (halqa === halqaToDelete) setHalqa('');
+      const targetHalqa = halqas.find(h => h.name === halqaToDelete);
+      const uuid = targetHalqa?.id || halqaToDelete;
+      removeCustomHalqa(uuid).then(() => {
+        showNotification('હલકો ડિલીટ થયો ✅');
+        if (halqa === halqaToDelete) setHalqa('');
+      }).catch((err: any) => {
+        showNotification('ભૂલ આવી! કાઢી શકાયો નથી ❌: ' + err.message);
+      });
     }
     setHalqaToDelete(null);
   };
@@ -406,14 +412,13 @@ export const NewReport: React.FC = () => {
           </div>
         </GlassCard>
         
-        {Object.keys(stats).map(key => {
-          if (key === 'muslim_teachers') return null;
+        {['std_10', 'std_11', 'std_12', 'college', 'engineering', 'medical'].map(key => {
           return (
             <GlassCard key={key} className="p-4 flex flex-col justify-between h-24">
               <span className="font-gujarati text-sm text-sub line-clamp-1">{t(`stat.${key}` as any)}</span>
               <input 
                 type="number"
-                value={stats[key as keyof typeof stats] || ''}
+                value={(stats as any)[key] || ''}
                 onChange={(e) => handleStatChange(key as keyof typeof stats, e.target.value)}
                 className="bg-transparent text-2xl font-bold font-num w-full outline-none text-right border-b border-transparent focus:border-primary  text-txt"
                 placeholder="0"
