@@ -27,6 +27,7 @@ export const Admin: React.FC = () => {
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [newCodeLabel, setNewCodeLabel] = useState('');
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [isPurging, setIsPurging] = useState(false);
 
   const showNotification = (msg: string) => {
     setToastMessage(msg);
@@ -126,6 +127,20 @@ export const Admin: React.FC = () => {
     } catch (err) {
       showNotification('ભૂલ આવી ❌');
     }
+  };
+
+  const handlePurgeRevoked = async () => {
+    if (!sessionCode) return;
+    if (!window.confirm('બધા રદ થયેલા કોડ કાયમ માટે ભૂંસાશે. ચાલુ રાખવું છે?')) return;
+    setIsPurging(true);
+    try {
+      const n = await supabaseService.purgeRevoked(sessionCode);
+      showNotification(`${n} જૂના કોડ સાફ થયા ✅`);
+      await loadCodes();
+    } catch (err) {
+      showNotification('ભૂલ આવી ❌');
+    }
+    setIsPurging(false);
   };
 
   const copyToClipboard = (text: string) => {
@@ -286,9 +301,22 @@ export const Admin: React.FC = () => {
               </button>
               <h2 className="text-xl font-bold font-gujarati">{t('admin.manage_users' as any)}</h2>
             </div>
-            <LiquidButton onClick={() => setShowGenerateModal(true)} size="sm" className="font-gujarati flex gap-2">
-              <Key size={16} /> 🔑 નવો પાસવર્ડ
-            </LiquidButton>
+            <div className="flex items-center gap-2">
+              {codes.some(c => c.revoked_at) && (
+                <LiquidButton
+                  onClick={handlePurgeRevoked}
+                  size="sm"
+                  variant="danger"
+                  className="font-gujarati flex gap-1 bg-acc/10 text-acc border-acc/20 hover:bg-acc hover:text-white"
+                  disabled={isPurging}
+                >
+                  🗑️ {isPurging ? 'સાફ...' : 'લિસ્ટ સાફ કરો'}
+                </LiquidButton>
+              )}
+              <LiquidButton onClick={() => setShowGenerateModal(true)} size="sm" className="font-gujarati flex gap-2">
+                <Key size={16} /> 🔑 નવો પાસવર્ડ
+              </LiquidButton>
+            </div>
           </header>
           
           <div className="space-y-4">

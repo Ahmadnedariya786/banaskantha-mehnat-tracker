@@ -128,5 +128,17 @@ export const supabaseService = {
     const { data, error } = await supabase.rpc('fn_revoke_code', { p_admin: adminCode, p_id: id });
     if (error) throw error;
     return data as boolean;
+  },
+  async purgeRevoked(adminCode: string) {
+    const { data, error } = await supabase.rpc('fn_purge_revoked', { p_admin: adminCode });
+    if (error) throw error;
+    return data as number;
   }
 };
+
+/** Returns true when the error is the DUPLICATE_REPORT signal from fn_save_report */
+export function isDuplicateReportError(err: unknown): boolean {
+  if (!err) return false;
+  const msg = (err as any)?.message || '';
+  return msg.startsWith('DUPLICATE_REPORT:') || msg.includes('DUPLICATE_REPORT');
+}

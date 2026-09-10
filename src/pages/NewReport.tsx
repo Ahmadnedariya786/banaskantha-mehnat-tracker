@@ -7,6 +7,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
 import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy } from 'lucide-react';
 import { cn, formatDate, localTodayIso } from '../lib/utils';
+import { isDuplicateReportError } from '../services/supabaseService';
 
 // Constants
 const DEFAULT_HALQAS = ['પાલનપુર', 'ડીસા', 'ધાનેરા', 'થરાદ'];
@@ -92,7 +93,11 @@ export const NewReport: React.FC = () => {
         clearDraft();
       } catch (err) {
         console.error(err);
-        showNotification('ભૂલ આવી! સેવ ન થઈ શક્યું ❌');
+        if (isDuplicateReportError(err)) {
+          showNotification('આ હલકા માટે આ તારીખનો રિપોર્ટ પહેલેથી છે — એડિટ કરો');
+        } else {
+          showNotification('ભૂલ આવી! સેવ ન થઈ શક્યું ❌');
+        }
       }
     });
   };
