@@ -128,31 +128,44 @@ export const Dashboard: React.FC = () => {
         </div>
 
         <div className="lg:flex-1 space-y-6 mt-6 lg:mt-0 w-full">
-          {/* Activity Bar Chart Mockup (All 13 rows) */}
+          {/* Activity Summary — modern card */}
           <section className="space-y-3">
-        <h3 className="font-bold font-gujarati text-lg pl-1 text-txt">
-          પ્રવૃત્તિ સારાંશ (બધા હલકા)
-        </h3>
-        <GlassCard className="p-6 bg-card">
-          <div className="space-y-5">
-            {ACTIVITY_KEYS.map((item, i) => (
-              <div key={i}>
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="font-gujarati font-medium text-sm text-txt line-clamp-1 pr-2">{t(item.key as any)}</span>
-                  <span className="font-num font-bold text-sm text-sub shrink-0">{item.value}%</span>
-                </div>
-                <div className="h-2.5 w-full bg-card rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${item.value}%` }}
-                    transition={{ duration: 1, delay: i * 0.05, ease: "easeOut" }}
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-blue-400"
-                  />
-                </div>
+            <h3 className="font-bold font-gujarati text-lg pl-1 text-txt">
+              પ્રવૃત્તિ સારાંશ (બધા હલકા)
+            </h3>
+            <div className="rounded-2xl overflow-hidden bg-card shadow-lg border border-brd/40">
+              {/* Accent header */}
+              <div className="py-3.5 px-4 flex items-center gap-3" style={{ background: 'rgb(var(--acc))' }}>
+                <span className="font-gujarati font-semibold text-sm text-white">પ્રવૃત્તિ</span>
+                <span className="ml-auto font-gujarati font-semibold text-sm text-white">પ્રગતિ</span>
               </div>
-            ))}
-          </div>
-        </GlassCard>
+              {/* Rows */}
+              <div className="divide-y divide-brd/30">
+                {ACTIVITY_KEYS.map((item, i) => (
+                  <div key={i} className="px-4 py-3.5 hover:bg-acc/5 transition-colors">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span
+                        className="w-8 h-8 rounded-lg text-white text-sm font-bold flex items-center justify-center shrink-0 font-num"
+                        style={{ background: 'rgb(var(--acc))' }}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="font-gujarati font-medium text-sm text-txt flex-1 line-clamp-1">{t(item.key as any)}</span>
+                      <span className="font-num font-bold text-sm shrink-0" style={{ color: 'rgb(var(--acc))' }}>{item.value}%</span>
+                    </div>
+                    <div className="ml-11 h-2.5 w-full rounded-full overflow-hidden" style={{ background: 'rgb(var(--acc) / 0.12)' }}>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${item.value}%` }}
+                        transition={{ duration: 1, delay: i * 0.05, ease: 'easeOut' }}
+                        className="h-full rounded-full"
+                        style={{ background: 'linear-gradient(to right, rgb(var(--grad-a)), rgb(var(--grad-b)))' }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
         </div>
       </div>

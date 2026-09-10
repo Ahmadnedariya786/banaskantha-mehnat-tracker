@@ -511,61 +511,80 @@ export const NewReport: React.FC = () => {
       {/* 13-row Activities Table */}
       <section className="space-y-3">
         <h3 className="font-bold font-gujarati text-lg pl-1 text-txt">{t('header.activities' as any)}</h3>
-        <div className="rounded-2xl bg-card/60 overflow-hidden">
-          <div className="overflow-x-auto hide-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[500px]">
+        <div className="rounded-2xl overflow-hidden bg-card shadow-lg border border-brd/40">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[640px]">
               <thead>
-                <tr className="bg-acc/10 text-txt">
-                  <th className="p-3 font-gujarati font-semibold text-sm w-1/3 border-r border-brd">પ્રવૃત્તિ</th>
-                  <th className="p-3 font-gujarati font-semibold text-sm text-center border-r border-brd">{t('header.gujishta' as any)}</th>
-                  <th className="p-3 font-gujarati font-semibold text-sm text-center border-r border-brd">{t('header.azaim' as any)}</th>
-                  <th className="p-3 font-gujarati font-semibold text-sm text-center">{t('header.maujuda' as any)}</th>
+                <tr style={{ background: 'rgb(var(--acc))' }}>
+                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white w-2/5">પ્રવૃત્તિ</th>
+                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white text-center">{t('header.gujishta' as any)}</th>
+                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white text-center">{t('header.azaim' as any)}</th>
+                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white text-center">{t('header.maujuda' as any)}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-brd/10">
-                {ACTIVITY_KEYS.map((key) => (
-                  <tr key={key} className="hover:bg-card/40">
-                    <td className="p-3 font-gujarati text-sm font-medium border-r border-brd text-txt">{t(key as any)}</td>
-                    <td className="p-2 border-r border-brd">
-                      <input 
-                        type="text" 
+              <tbody className="divide-y divide-brd/30">
+                {ACTIVITY_KEYS.map((key, idx) => (
+                  <tr key={key} className="hover:bg-acc/5 transition-colors">
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="w-8 h-8 rounded-lg text-white text-sm font-bold flex items-center justify-center shrink-0 font-num"
+                          style={{ background: 'rgb(var(--acc))' }}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span className="font-gujarati font-medium text-sm text-txt">{t(key as any)}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <input
+                        type="text"
                         value={activities[key]?.gujishta || ''}
                         onChange={(e) => handleActivityChange(key, 'gujishta', e.target.value)}
-                        className="w-full rounded p-2 text-sm outline-none focus:ring-1 ring-primary font-num text-center placeholder:text-sub/30 bg-inp/10 text-txt" 
+                        className="w-full max-w-[110px] mx-auto block rounded-xl border border-brd/50 bg-inp/60 py-2.5 text-sm text-center text-txt font-num placeholder:text-sub/40 outline-none focus:border-acc focus:ring-2 focus:ring-acc/40 transition-all"
                         placeholder="-"
                       />
                     </td>
-                    <td className="p-2 border-r border-brd">
-                      <input 
-                        type="text" 
+                    <td className="py-3.5 px-4">
+                      <input
+                        type="text"
                         value={activities[key]?.azaim || ''}
                         onChange={(e) => handleActivityChange(key, 'azaim', e.target.value)}
-                        className="w-full rounded p-2 text-sm outline-none focus:ring-1 ring-primary font-num text-center placeholder:text-sub/30 bg-inp/10 text-txt" 
+                        className="w-full max-w-[110px] mx-auto block rounded-xl border border-brd/50 bg-inp/60 py-2.5 text-sm text-center text-txt font-num placeholder:text-sub/40 outline-none focus:border-acc focus:ring-2 focus:ring-acc/40 transition-all"
                         placeholder="-"
                       />
                     </td>
-                    <td className="p-2">
-                      <input 
-                        type="text" 
+                    <td className="py-3.5 px-4">
+                      <input
+                        type="text"
                         value={activities[key]?.maujuda || ''}
                         onChange={(e) => handleActivityChange(key, 'maujuda', e.target.value)}
-                        className="w-full shadow-[inset_0_0_0_2px_rgb(var(--brd)/0.2)] rounded p-2 text-sm outline-none focus:ring-1 ring-primary font-num font-bold text-center placeholder:text-acc/30 bg-inp/10 text-txt" 
+                        className="w-full max-w-[110px] mx-auto block rounded-xl border-2 py-2.5 text-sm text-center text-txt font-num font-bold placeholder:text-acc/40 outline-none focus:ring-2 focus:ring-acc/40 transition-all"
+                        style={{ borderColor: 'rgb(var(--acc) / 0.5)', background: 'rgb(var(--acc) / 0.06)' }}
                         placeholder="-"
                       />
                     </td>
                   </tr>
                 ))}
-                {/* 13th Row: Mashwara (spans across inputs) */}
-                <tr className="hover:bg-card/40">
-                  <td className="p-3 font-gujarati text-sm font-bold text-txt border-r border-brd">
-                    {t('activity.mashwara_when_where' as any)}
+                {/* 13th Row: Mashwara */}
+                <tr className="hover:bg-acc/5 transition-colors">
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="w-8 h-8 rounded-lg text-white text-sm font-bold flex items-center justify-center shrink-0 font-num"
+                        style={{ background: 'rgb(var(--acc))' }}
+                      >
+                        13
+                      </span>
+                      <span className="font-gujarati font-bold text-sm text-txt">{t('activity.mashwara_when_where' as any)}</span>
+                    </div>
                   </td>
-                  <td colSpan={3} className="p-2">
-                    <input 
-                      type="text" 
+                  <td colSpan={3} className="py-3.5 px-4">
+                    <input
+                      type="text"
                       value={activities['mashwara']?.maujuda || ''}
                       onChange={(e) => handleActivityChange('mashwara', 'maujuda', e.target.value)}
-                      className="w-full rounded p-2 text-sm outline-none focus:ring-1 ring-primary font-gujarati placeholder:text-sub/50 bg-inp/10 text-txt" 
+                      className="w-full rounded-xl border border-brd/50 bg-inp/60 px-4 py-2.5 text-sm text-txt font-gujarati placeholder:text-sub/40 outline-none focus:border-acc focus:ring-2 focus:ring-acc/40 transition-all"
                       placeholder="વિગત લખો..."
                     />
                   </td>
