@@ -87,6 +87,13 @@ export const Settings: React.FC = () => {
       </AnimatePresence>
       <header className="flex justify-between items-center">
         <h2 className="text-2xl font-bold font-gujarati">{t('settings.title' as any)}</h2>
+        <div className="text-xs font-gujarati bg-card px-3 py-1.5 rounded-full shadow-sm text-sub flex items-center gap-1.5">
+          {useAppStore().sessionRole === 'admin' 
+            ? 'એડમિન લૉગિન ✅' 
+            : useAppStore().sessionRole === 'team' 
+              ? 'ટીમ કોડ સક્રિય ✅' 
+              : 'મહેમાન મોડ'}
+        </div>
       </header>
 
       <div className="space-y-4">
@@ -114,6 +121,14 @@ export const Settings: React.FC = () => {
               </button>
             ))}
           </div>
+        </GlassCard>
+
+        {/* Auth Link */}
+        <GlassCard hoverEffect className="p-4 flex items-center gap-3 cursor-pointer" onClick={() => useAppStore.setState({ authDialogOpen: true, authPendingAction: null })}>
+          <div className="w-10 h-10 rounded-full bg-acc/10 flex items-center justify-center text-acc text-lg">
+            🔑
+          </div>
+          <div className="font-gujarati font-medium">ટીમ કોડ દાખલ કરો / બદલો</div>
         </GlassCard>
 
         {/* Reminder Settings */}

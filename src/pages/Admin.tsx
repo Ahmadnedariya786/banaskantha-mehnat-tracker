@@ -109,7 +109,7 @@ export const Admin: React.FC = () => {
       const code = await supabaseService.generateCode(sessionCode, newCodeLabel.trim());
       setGeneratedCode(code);
       setNewCodeLabel('');
-      loadCodes();
+      await loadCodes();
     } catch (err) {
       showNotification('ભૂલ આવી ❌');
     }

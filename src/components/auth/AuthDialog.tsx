@@ -60,16 +60,16 @@ export const AuthDialog: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70]"
             onClick={closeAuthDialog}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm z-50"
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none"
           >
-            <GlassCard className="p-6 relative">
+            <GlassCard className="w-[92%] max-w-sm rounded-2xl bg-card p-5 relative pointer-events-auto">
               <button 
                 onClick={closeAuthDialog}
                 className="absolute top-4 right-4 text-sub hover:text-txt transition-colors"

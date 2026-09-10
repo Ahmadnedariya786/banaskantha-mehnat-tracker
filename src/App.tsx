@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './store/appStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+
+let greetingShown = false;
 
 import { Layout } from './components/layout/Layout';
 import { AuthDialog } from './components/auth/AuthDialog';
@@ -18,26 +20,30 @@ import { Gallery } from './pages/Gallery';
 
 function App() {
   const { hasCompletedOnboarding, loadData } = useAppStore();
-  const [showGreeting, setShowGreeting] = useState(() => !sessionStorage.getItem('greeted'));
+  const [showGreeting, setShowGreeting] = useState(() => {
+    if (greetingShown || sessionStorage.getItem('greeted')) return false;
+    return true;
+  });
   
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   useEffect(() => {
-    if (!sessionStorage.getItem('greeted')) {
+    if (showGreeting) {
       sessionStorage.setItem('greeted', 'true');
+      greetingShown = true;
       const t = setTimeout(() => setShowGreeting(false), 2000);
       return () => clearTimeout(t);
     }
-  }, []);
+  }, [showGreeting]);
 
   return (
     <>
-      <AnimatePresence>
         {showGreeting && (
           <motion.div
             initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-bg pointer-events-none"
@@ -48,7 +54,6 @@ function App() {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
       <BrowserRouter>
       <Routes>
         {/* Gallery available for demo */}
