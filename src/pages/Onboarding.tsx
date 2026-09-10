@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../store/appStore';
 import { t } from '../i18n';
@@ -9,7 +9,6 @@ import { ChevronRight, Check } from 'lucide-react';
 export const Onboarding: React.FC = () => {
   const { setHasCompletedOnboarding } = useAppStore();
   const [slide, setSlide] = useState(0);
-  const [showWelcome, setShowWelcome] = useState(false);
 
   const slides = [
     { title: t('onboarding.slide1.title' as any) || 'સ્વાગત છે', desc: t('onboarding.slide1.desc' as any) || 'બનાસકાંઠા સ્ટુડન્ટ મહેનત ટ્રેકરમાં તમારું સ્વાગત છે.' },
@@ -21,42 +20,9 @@ export const Onboarding: React.FC = () => {
     if (slide < slides.length - 1) {
       setSlide(slide + 1);
     } else {
-      setShowWelcome(true);
+      setHasCompletedOnboarding(true);
     }
   };
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (showWelcome) {
-      timer = setTimeout(() => {
-        setHasCompletedOnboarding(true);
-      }, 5000);
-    }
-    return () => clearTimeout(timer);
-  }, [showWelcome, setHasCompletedOnboarding]);
-
-  if (showWelcome) {
-    return (
-      <div 
-        className="fixed inset-0 z-50 flex items-center justify-center p-6 cursor-pointer bg-bg/50 backdrop-blur-sm"
-        onClick={() => setHasCompletedOnboarding(true)}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="w-full max-w-sm"
-        >
-          <GlassCard className="text-center p-12">
-            <h2 className="text-3xl font-bold font-gujarati text-acc mb-4">
-              {t('onboarding.welcome')}
-            </h2>
-            <div className="w-16 h-1 bg-acc mx-auto rounded-full mt-6" />
-          </GlassCard>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden max-w-md mx-auto">

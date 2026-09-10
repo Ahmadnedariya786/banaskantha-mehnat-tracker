@@ -293,16 +293,25 @@ export const Admin: React.FC = () => {
           
           <div className="space-y-4">
             {codes.map(c => (
-              <GlassCard key={c.id} className={`p-4 flex items-center justify-between ${c.revoked_at ? 'opacity-50' : ''}`}>
+              <GlassCard key={c.id} className={`p-4 flex items-center justify-between ${c.revoked_at ? 'opacity-50 grayscale' : ''}`}>
                 <div>
-                  <div className="font-gujarati font-bold text-txt">{c.label}</div>
-                  <div className="font-num text-sm text-sub mt-1">{c.masked_code || 'MT-****-****'} <span className="font-gujarati ml-2 text-xs">({new Date(c.created_at).toLocaleDateString('en-IN')})</span></div>
-                  {c.revoked_at && <div className="text-xs text-acc font-gujarati mt-1">રદ કરેલ: {new Date(c.revoked_at).toLocaleDateString('en-IN')}</div>}
+                  <div className="font-gujarati font-bold text-txt flex items-center gap-2">
+                    {c.label}
+                    {c.revoked_at && <span className="bg-acc/10 text-acc border border-acc/20 px-2 py-0.5 rounded-full text-[10px] whitespace-nowrap">રદ થયેલ</span>}
+                  </div>
+                  <div className="font-num text-sm text-sub mt-1">
+                    {c.masked || 'MT-****-****'} 
+                    <span className="font-gujarati ml-2 text-xs">({new Date(c.created_at).toLocaleDateString('en-IN')})</span>
+                  </div>
                 </div>
-                {!c.revoked_at && (
+                {!c.revoked_at ? (
                   <button onClick={() => handleRevokeCode(c.id)} className="w-10 h-10 rounded-full bg-acc/10 text-acc flex items-center justify-center hover:bg-acc hover:text-white transition-colors">
                     <Trash2 size={18} />
                   </button>
+                ) : (
+                  <div className="text-xs text-acc font-gujarati text-right">
+                    {new Date(c.revoked_at).toLocaleDateString('en-IN')}
+                  </div>
                 )}
               </GlassCard>
             ))}

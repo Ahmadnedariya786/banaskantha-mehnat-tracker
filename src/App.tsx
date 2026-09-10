@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './store/appStore';
-import { motion } from 'framer-motion';
-
-let greetingShown = false;
-
 import { Layout } from './components/layout/Layout';
 import { AuthDialog } from './components/auth/AuthDialog';
 
@@ -20,40 +16,26 @@ import { Gallery } from './pages/Gallery';
 
 function App() {
   const { hasCompletedOnboarding, loadData } = useAppStore();
-  const [showGreeting, setShowGreeting] = useState(() => {
-    if (greetingShown || sessionStorage.getItem('greeted')) return false;
-    return true;
-  });
+  const [showGreeting] = useState(() => !sessionStorage.getItem('mt_greeted'));
   
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   useEffect(() => {
-    if (showGreeting) {
-      sessionStorage.setItem('greeted', 'true');
-      greetingShown = true;
-      const t = setTimeout(() => setShowGreeting(false), 2000);
-      return () => clearTimeout(t);
-    }
-  }, [showGreeting]);
+    sessionStorage.setItem('mt_greeted', '1');
+  }, []);
 
   return (
     <>
-        {showGreeting && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-bg pointer-events-none"
-          >
-            <div className="glass-panel w-[86%] max-w-md mx-auto rounded-3xl p-6 text-center shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
-              <h1 className="font-bold font-gujarati text-txt mb-2 text-center leading-tight text-balance" style={{ fontSize: 'clamp(1.6rem, 7vw, 3rem)' }}>અસ્સલામુ અલયકુમ</h1>
-              <span className="block text-center text-xs tracking-[0.2em] text-sub uppercase font-num mt-2">ASSALAMU ALAYKUM</span>
-            </div>
-          </motion.div>
-        )}
+      {showGreeting && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-bg pointer-events-none" style={{ animation: 'fadeOut 0.5s ease 2s forwards' }}>
+          <div className="glass-panel w-[86%] max-w-md mx-auto rounded-3xl p-6 text-center shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
+            <h1 className="font-bold font-gujarati text-txt mb-2 text-center leading-tight text-balance" style={{ fontSize: 'clamp(1.6rem, 7vw, 3rem)' }}>અસ્સલામુ અલયકુમ</h1>
+            <span className="block text-center text-xs tracking-[0.2em] text-sub uppercase font-num mt-2">ASSALAMU ALAYKUM</span>
+          </div>
+        </div>
+      )}
       <BrowserRouter>
       <Routes>
         {/* Gallery available for demo */}
