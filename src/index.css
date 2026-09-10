@@ -12,6 +12,12 @@
     background: rgb(var(--bg));
     color: rgb(var(--text));
   }
+
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+  }
   
   body {
     @apply font-gujarati antialiased min-h-screen;

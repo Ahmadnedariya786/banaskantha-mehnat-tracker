@@ -389,7 +389,7 @@ export const NewReport: React.FC = () => {
                       key={d}
                       onClick={() => { setDate(fullDate); setShowCalendar(false); }}
                       className={cn(
-                        "h-10 w-10 mx-auto rounded-full text-sm flex items-center justify-center font-num transition-all duration-200",
+                        "h-10 w-10 mx-auto rounded-full text-sm flex items-center justify-center font-num transition-transform duration-200",
                         isSelected 
                           ? "bg-acc text-white shadow" 
                           : isToday 
