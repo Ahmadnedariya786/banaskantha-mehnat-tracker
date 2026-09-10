@@ -1,25 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
-import { Shield, Users, Activity, Database, Lock, ChevronLeft, CheckCircle } from 'lucide-react';
+import { Shield, Users, Activity, Database, Lock, ChevronLeft, CheckCircle, Key, Trash2, Copy, Share2 } from 'lucide-react';
 import { getLogs, clearLogs, type SystemLog, logActivity } from '../lib/utils';
 import { useAppStore } from '../store/appStore';
+import { supabaseService } from '../services/supabaseService';
 
 export const Admin: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
+  const { sessionCode, sessionRole, setSession, reports, halqas } = useAppStore();
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const [activeScreen, setActiveScreen] = useState<'main' | 'users' | 'logs'>('main');
   const [logs, setLogs] = useState<SystemLog[]>([]);
-  const { reports, halqas } = useAppStore();
-
+  
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+
+  // Users screen state
+  const [codes, setCodes] = useState<any[]>([]);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [newCodeLabel, setNewCodeLabel] = useState('');
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   const showNotification = (msg: string) => {
     setToastMessage(msg);
@@ -29,26 +34,76 @@ export const Admin: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!password.trim()) return;
     setIsLoading(true);
     try {
-      const salt = 'mehnat2026';
-      const encoder = new TextEncoder();
-      const data = encoder.encode(salt + username + password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      
-      if (hashHex === '85968d9cbf415a1ebf5b8fd9125ad48db9761bf4d72132c589f9f90c2657eaef') {
-        setIsAuthenticated(true);
-        setError(false);
+      const code = password.trim();
+      const initSuccess = await supabaseService.setAdminCode(null, code);
+      if (initSuccess) {
+        setSession(code, 'admin');
+        showNotification('એડમિન પાસવર્ડ સેટ થયો ✅');
       } else {
-        setError(true);
-        setPassword('');
+        const role = await supabaseService.loginCode(code);
+        if (role === 'admin') {
+          setSession(code, role);
+          setError(false);
+        } else {
+          setError(true);
+          setPassword('');
+        }
       }
     } catch (err) {
       setError(true);
     }
     setIsLoading(false);
+  };
+
+  const loadCodes = async () => {
+    if (sessionRole !== 'admin' || !sessionCode) return;
+    try {
+      const data = await supabaseService.listCodes(sessionCode);
+      setCodes(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeScreen === 'users' && sessionRole === 'admin') {
+      loadCodes();
+    }
+  }, [activeScreen, sessionRole]);
+
+  const handleGenerateCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCodeLabel.trim() || !sessionCode) return;
+    setIsLoading(true);
+    try {
+      const code = await supabaseService.generateCode(sessionCode, newCodeLabel.trim());
+      setGeneratedCode(code);
+      setNewCodeLabel('');
+      loadCodes();
+    } catch (err) {
+      showNotification('ભૂલ આવી ❌');
+    }
+    setIsLoading(false);
+  };
+
+  const handleRevokeCode = async (id: string) => {
+    if (!sessionCode) return;
+    if (!window.confirm('શું તમે ખરેખર આ કોડ રદ કરવા માંગો છો?')) return;
+    try {
+      await supabaseService.revokeCode(sessionCode, id);
+      showNotification('કોડ રદ કરાયેલ છે');
+      loadCodes();
+    } catch (err) {
+      showNotification('ભૂલ આવી ❌');
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    showNotification('કોપી થઈ ગયું ✅');
   };
 
   const handleBackup = () => {
@@ -82,7 +137,7 @@ export const Admin: React.FC = () => {
     showNotification('લૉગ્સ સાફ થયા ✅');
   };
 
-  if (!isAuthenticated) {
+  if (sessionRole !== 'admin') {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-6">
         <GlassCard className="w-full max-w-sm p-8 space-y-6">
@@ -90,23 +145,17 @@ export const Admin: React.FC = () => {
             <div className="w-16 h-16 bg-acc/10 rounded-full flex items-center justify-center mx-auto text-acc mb-4">
               <Lock size={32} />
             </div>
-            <h2 className="text-2xl font-bold font-gujarati">{t('admin.login_title' as any)}</h2>
+            <h2 className="text-2xl font-bold font-gujarati">એડમિન લૉગિન</h2>
+            <p className="text-sm font-gujarati text-sub">પ્રથમ વખત લોગિન કરતા હોવ તો નવો પાસવર્ડ નાખી સેટ કરો.</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-3">
               <input 
-                type="text" 
-                value={username}
-                onChange={(e) => { setUsername(e.target.value); setError(false); }}
-                placeholder="Username"
-                className="w-full h-12 px-4 rounded-xl glass-panel bg-card outline-none focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] transition-shadow text-center font-num tracking-wide text-txt"
-              />
-              <input 
                 type="password" 
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(false); }}
-                placeholder={t('admin.password_placeholder' as any)}
+                placeholder="એડમિન પાસવર્ડ"
                 className="w-full h-12 px-4 rounded-xl glass-panel bg-card outline-none focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] transition-shadow text-center font-num tracking-widest text-txt"
               />
               <AnimatePresence>
@@ -159,10 +208,7 @@ export const Admin: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <GlassCard onClick={() => setActiveScreen('users')} hoverEffect className="relative p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
-              <div className="absolute top-3 right-3 w-6 h-6 bg-acc/10 text-acc rounded-full flex items-center justify-center">
-                <Lock size={12} />
-              </div>
-              <Users size={32} className="text-sub" />
+              <Users size={32} className="text-acc" />
               <span className="font-gujarati font-medium text-sm">{t('admin.manage_users' as any)}</span>
             </GlassCard>
 
@@ -180,19 +226,97 @@ export const Admin: React.FC = () => {
       )}
 
       {activeScreen === 'users' && (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-          <header className="flex items-center gap-4">
-            <button onClick={() => setActiveScreen('main')} className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-sub">
-              <ChevronLeft size={20} />
-            </button>
-            <h2 className="text-2xl font-bold font-gujarati">{t('admin.manage_users' as any)}</h2>
-          </header>
-          <GlassCard className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-acc/10 rounded-full flex items-center justify-center mx-auto text-acc">
-              <Lock size={32} />
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 relative">
+          <header className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setActiveScreen('main')} className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-sub">
+                <ChevronLeft size={20} />
+              </button>
+              <h2 className="text-xl font-bold font-gujarati">{t('admin.manage_users' as any)}</h2>
             </div>
-            <p className="font-gujarati text-lg font-medium text-txt">લોગિન સિસ્ટમ (S5) આવ્યા પછી સક્રિય થશે</p>
-          </GlassCard>
+            <LiquidButton onClick={() => setShowGenerateModal(true)} size="sm" className="font-gujarati flex gap-2">
+              <Key size={16} /> 🔑 નવો પાસવર્ડ
+            </LiquidButton>
+          </header>
+          
+          <div className="space-y-4">
+            {codes.map(c => (
+              <GlassCard key={c.id} className={`p-4 flex items-center justify-between ${c.revoked_at ? 'opacity-50' : ''}`}>
+                <div>
+                  <div className="font-gujarati font-bold text-txt">{c.label}</div>
+                  <div className="font-num text-sm text-sub mt-1">MT-****-**** <span className="font-gujarati ml-2 text-xs">({new Date(c.created_at).toLocaleDateString('en-IN')})</span></div>
+                  {c.revoked_at && <div className="text-xs text-acc font-gujarati mt-1">રદ કરેલ: {new Date(c.revoked_at).toLocaleDateString('en-IN')}</div>}
+                </div>
+                {!c.revoked_at && (
+                  <button onClick={() => handleRevokeCode(c.id)} className="w-10 h-10 rounded-full bg-acc/10 text-acc flex items-center justify-center hover:bg-acc hover:text-white transition-colors">
+                    <Trash2 size={18} />
+                  </button>
+                )}
+              </GlassCard>
+            ))}
+            {codes.length === 0 && (
+              <div className="text-center text-sub py-8 font-gujarati">કોઈ ટીમ કોડ નથી</div>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {showGenerateModal && (
+              <>
+                <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={() => { if(!generatedCode) setShowGenerateModal(false); }} />
+                <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm z-50">
+                  <GlassCard className="p-6">
+                    {generatedCode ? (
+                      <div className="space-y-6 text-center">
+                        <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
+                          <CheckCircle size={32} />
+                        </div>
+                        <div>
+                          <h3 className="font-gujarati font-bold text-lg text-txt">નવો કોડ તૈયાર છે</h3>
+                          <p className="text-sub text-sm font-gujarati mt-1">આ કોડ એક જ વાર દેખાશે. યુઝરને મોકલી આપો.</p>
+                        </div>
+                        <div className="bg-card py-3 px-4 rounded-xl border border-brd/10 font-num text-xl font-bold tracking-widest text-txt">
+                          {generatedCode}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <LiquidButton variant="neutral" onClick={() => copyToClipboard(generatedCode)}>
+                            <Copy size={18} className="mr-2" /> કૉપિ
+                          </LiquidButton>
+                          <LiquidButton onClick={() => {
+                            const text = `તમારો રિપોર્ટિંગ કોડ: ${generatedCode}`;
+                            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+                          }}>
+                            <Share2 size={18} className="mr-2" /> શેર
+                          </LiquidButton>
+                        </div>
+                        <button onClick={() => { setGeneratedCode(null); setShowGenerateModal(false); }} className="text-sm font-gujarati text-sub underline pt-2">બંધ કરો</button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleGenerateCode} className="space-y-4">
+                        <h3 className="font-gujarati font-bold text-lg text-txt text-center">નવો પાસવર્ડ બનાવો</h3>
+                        <input
+                          type="text"
+                          value={newCodeLabel}
+                          onChange={e => setNewCodeLabel(e.target.value)}
+                          placeholder="કોડ કોને આપ્યો? નામ લખો"
+                          className="w-full bg-card rounded-md px-4 py-3 outline-none shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] font-gujarati focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] text-txt"
+                          required
+                          autoFocus
+                        />
+                        <div className="flex gap-3 pt-2">
+                          <LiquidButton type="button" variant="neutral" className="flex-1" onClick={() => setShowGenerateModal(false)}>
+                            રદ કરો
+                          </LiquidButton>
+                          <LiquidButton type="submit" className="flex-1" disabled={isLoading || !newCodeLabel.trim()}>
+                            બનાવો
+                          </LiquidButton>
+                        </div>
+                      </form>
+                    )}
+                  </GlassCard>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
 
@@ -235,4 +359,3 @@ export const Admin: React.FC = () => {
     </div>
   );
 };
-

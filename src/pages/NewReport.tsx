@@ -65,34 +65,36 @@ export const NewReport: React.FC = () => {
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!halqa) {
       showNotification('કૃપા કરીને હલકો પસંદ કરો ❌');
       return;
     }
-    try {
-      await addReport({
-        id: '', // Empty ID for new reports, DB will generate UUID
-        halqa,
-        date,
-        stats,
-        activities,
-        mashwara: activities['mashwara']?.maujuda || '',
-        notes
-      });
-      showNotification('રિપોર્ટ સેવ થયો ✅');
-      setHalqa('');
-      sessionStorage.removeItem('currentDate');
-      setDate(localTodayIso());
-      setStats({ std_10: 0, std_11: 0, std_12: 0, college: 0, engineering: 0, medical: 0, muslim_teachers: 0 });
-      setActivities({});
-      setMashwara('');
-      setNotes('');
-      clearDraft();
-    } catch (err) {
-      console.error(err);
-      showNotification('ભૂલ આવી! સેવ ન થઈ શક્યું ❌');
-    }
+    useAppStore.getState().requireAuth(async () => {
+      try {
+        await addReport({
+          id: '', // Empty ID for new reports, DB will generate UUID
+          halqa,
+          date,
+          stats,
+          activities,
+          mashwara: activities['mashwara']?.maujuda || '',
+          notes
+        });
+        showNotification('રિપોર્ટ સેવ થયો ✅');
+        setHalqa('');
+        sessionStorage.removeItem('currentDate');
+        setDate(localTodayIso());
+        setStats({ std_10: 0, std_11: 0, std_12: 0, college: 0, engineering: 0, medical: 0, muslim_teachers: 0 });
+        setActivities({});
+        setMashwara('');
+        setNotes('');
+        clearDraft();
+      } catch (err) {
+        console.error(err);
+        showNotification('ભૂલ આવી! સેવ ન થઈ શક્યું ❌');
+      }
+    });
   };
 
   const confirmClear = () => {

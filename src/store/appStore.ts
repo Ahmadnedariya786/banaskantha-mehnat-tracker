@@ -20,6 +20,15 @@ interface AppState {
   setDraftReport: (draft: any) => void
   clearDraft: () => void
   
+  sessionCode: string | null
+  sessionRole: 'admin' | 'team' | null
+  setSession: (code: string | null, role: 'admin' | 'team' | null) => void
+  
+  authDialogOpen: boolean
+  authPendingAction: (() => void) | null
+  requireAuth: (action: () => void) => void
+  closeAuthDialog: () => void
+  
   // App data (Supabase)
   isLoading: boolean
   reports: SavedReport[]
@@ -38,13 +47,29 @@ interface AppState {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       hasCompletedOnboarding: false,
       setHasCompletedOnboarding: (val) => set({ hasCompletedOnboarding: val }),
       
       draftReport: null,
       setDraftReport: (draft) => set({ draftReport: draft }),
       clearDraft: () => set({ draftReport: null }),
+      
+      sessionCode: null,
+      sessionRole: null,
+      setSession: (code, role) => set({ sessionCode: code, sessionRole: role }),
+      
+      authDialogOpen: false,
+      authPendingAction: null,
+      requireAuth: (action) => {
+        const { sessionCode, sessionRole } = get()
+        if (sessionCode && sessionRole) {
+          action()
+        } else {
+          set({ authDialogOpen: true, authPendingAction: action })
+        }
+      },
+      closeAuthDialog: () => set({ authDialogOpen: false, authPendingAction: null }),
       
       isLoading: true,
       reports: [],
@@ -54,6 +79,16 @@ export const useAppStore = create<AppState>()(
       loadData: async () => {
         set({ isLoading: true })
         try {
+          const code = get().sessionCode;
+          if (code) {
+            try {
+              const role = await supabaseService.loginCode(code);
+              if (!role) get().setSession(null, null);
+              else get().setSession(code, role);
+            } catch (err) {
+              get().setSession(null, null);
+            }
+          }
           const [reports, halqas] = await Promise.all([
             supabaseService.listReports(),
             supabaseService.listHalqas()
@@ -72,7 +107,9 @@ export const useAppStore = create<AppState>()(
       
       addReport: async (report) => {
         try {
-          const saved = await supabaseService.saveReport(report)
+          const code = get().sessionCode;
+          if (!code) throw new Error("Unauthorized");
+          const saved = await supabaseService.saveReport(report, code)
           set((state) => ({ reports: [saved, ...state.reports] }))
           logActivity('રિપોર્ટ સેવ કર્યો');
         } catch (err) {
@@ -83,7 +120,9 @@ export const useAppStore = create<AppState>()(
       
       updateReport: async (id, report) => {
         try {
-          const updated = await supabaseService.updateReport(id, report)
+          const code = get().sessionCode;
+          if (!code) throw new Error("Unauthorized");
+          const updated = await supabaseService.updateReport(id, report, code)
           set((state) => ({ 
             reports: state.reports.map(r => r.id === id ? updated : r) 
           }))
@@ -96,7 +135,9 @@ export const useAppStore = create<AppState>()(
       
       deleteReport: async (id) => {
         try {
-          await supabaseService.deleteReport(id)
+          const code = get().sessionCode;
+          if (!code) throw new Error("Unauthorized");
+          await supabaseService.deleteReport(id, code)
           set((state) => ({ reports: state.reports.filter(r => r.id !== id) }))
           logActivity('રિપોર્ટ ડિલીટ કર્યો');
         } catch (err) {
@@ -107,7 +148,9 @@ export const useAppStore = create<AppState>()(
       
       addCustomHalqa: async (name) => {
         try {
-          const newHalqa = await supabaseService.addHalqa(name)
+          const code = get().sessionCode;
+          if (!code) throw new Error("Unauthorized");
+          const newHalqa = await supabaseService.addHalqa(name, code)
           set((state) => ({ 
             halqas: [...state.halqas, newHalqa],
             customHalqas: [...state.customHalqas, name]
@@ -120,7 +163,9 @@ export const useAppStore = create<AppState>()(
       
       removeCustomHalqa: async (id) => {
         try {
-          await supabaseService.deleteHalqa(id)
+          const code = get().sessionCode;
+          if (!code) throw new Error("Unauthorized");
+          await supabaseService.deleteHalqa(id, code)
           set((state) => ({
             halqas: state.halqas.filter(h => h.id !== id)
           }))
@@ -134,7 +179,9 @@ export const useAppStore = create<AppState>()(
       name: 'app-storage',
       partialize: (state) => ({
         hasCompletedOnboarding: state.hasCompletedOnboarding,
-        draftReport: state.draftReport
+        draftReport: state.draftReport,
+        sessionCode: state.sessionCode,
+        sessionRole: state.sessionRole,
       })
     }
   )

@@ -56,23 +56,25 @@ export const supabaseService = {
     }
     return data.map(mapDbToReport);
   },
-  async saveReport(r: SavedReport) {
+  async saveReport(r: SavedReport, code: string) {
     const dbRow = mapReportToDb(r);
-    const { data, error } = await supabase.from('reports').upsert(dbRow).select().single();
+    const { data, error } = await supabase.rpc('fn_save_report', { p_code: code, p_payload: dbRow });
     if (error) {
       console.error('saveReport ERROR:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
       throw error;
     }
     return mapDbToReport(data);
   },
-  async updateReport(id: string, r: SavedReport) {
+  async updateReport(id: string, r: SavedReport, code: string) {
     const dbRow = mapReportToDb(r);
-    const { data, error } = await supabase.from('reports').update(dbRow).eq('id', id).select().single();
+    // Since fn_save_report handles both insert and update (based on id presence in payload), we can just use it
+    dbRow.id = id;
+    const { data, error } = await supabase.rpc('fn_save_report', { p_code: code, p_payload: dbRow });
     if (error) throw error;
     return mapDbToReport(data);
   },
-  async deleteReport(id: string) {
-    const { error } = await supabase.from('reports').delete().eq('id', id);
+  async deleteReport(id: string, code: string) {
+    const { error } = await supabase.rpc('fn_delete_report', { p_code: code, p_id: id });
     if (error) {
       console.error('deleteReport ERROR:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
       throw error;
@@ -83,14 +85,14 @@ export const supabaseService = {
     if (error) throw error;
     return data;
   },
-  async addHalqa(name: string) {
-    const { data, error } = await supabase.from('halqas').insert({ name, is_custom: true }).select().single();
+  async addHalqa(name: string, adminCode: string) {
+    const { data, error } = await supabase.rpc('fn_save_halqa', { p_admin: adminCode, p_payload: { name, is_custom: true } });
     if (error) throw error;
     return data;
   },
-  async deleteHalqa(id: string) {
+  async deleteHalqa(id: string, adminCode: string) {
     if (!/^[0-9a-f-]{36}$/i.test(id)) return;
-    const { error } = await supabase.from('halqas').delete().eq('id', id);
+    const { error } = await supabase.rpc('fn_delete_halqa', { p_admin: adminCode, p_id: id });
     if (error) throw error;
   },
   async getSetting(key: string) {
@@ -98,8 +100,33 @@ export const supabaseService = {
     if (error) throw error;
     return data?.value || null;
   },
-  async setSetting(key: string, value: any) {
-    const { error } = await supabase.from('app_settings').upsert({ key, value, updated_at: new Date().toISOString() });
+  async setSetting(key: string, value: any, adminCode: string) {
+    const { error } = await supabase.rpc('fn_update_settings', { p_admin: adminCode, p_payload: { key, value } });
     if (error) throw error;
+  },
+  async setAdminCode(oldCode: string | null, newCode: string) {
+    const { data, error } = await supabase.rpc('fn_set_admin_code', { p_old: oldCode, p_new: newCode });
+    if (error) throw error;
+    return data as boolean;
+  },
+  async loginCode(code: string) {
+    const { data, error } = await supabase.rpc('fn_login_code', { p_code: code });
+    if (error) throw error;
+    return data as 'admin' | 'team' | null;
+  },
+  async generateCode(adminCode: string, label: string) {
+    const { data, error } = await supabase.rpc('fn_generate_code', { p_admin: adminCode, p_label: label });
+    if (error) throw error;
+    return data as string;
+  },
+  async listCodes(adminCode: string) {
+    const { data, error } = await supabase.rpc('fn_list_codes', { p_admin: adminCode });
+    if (error) throw error;
+    return data;
+  },
+  async revokeCode(adminCode: string, id: string) {
+    const { data, error } = await supabase.rpc('fn_revoke_code', { p_admin: adminCode, p_id: id });
+    if (error) throw error;
+    return data as boolean;
   }
 };

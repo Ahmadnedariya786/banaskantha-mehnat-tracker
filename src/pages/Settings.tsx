@@ -7,13 +7,24 @@ import { LiquidSwitch } from '../components/ui/LiquidSwitch';
 import { Bell, Moon, Globe, Shield, Info, Clock } from 'lucide-react';
 import { useThemeStore, type Theme } from '../store/themeStore';
 import { supabaseService } from '../services/supabaseService';
+import { useAppStore } from '../store/appStore';
 
 export const Settings: React.FC = () => {
+  const { sessionCode, requireAuth } = useAppStore();
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderTime, setReminderTime] = useState('20:00');
   const [showTimePicker, setShowTimePicker] = useState(false);
   const { theme, setTheme } = useThemeStore();
   const navigate = useNavigate();
+  
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  const showNotification = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   useEffect(() => {
     console.log('SETTINGS_MOUNT');
@@ -30,27 +41,50 @@ export const Settings: React.FC = () => {
     }).catch(console.error);
   }, []);
 
-  const handleTimeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = e.target.value;
     setReminderTime(newTime);
-    try {
-      await supabaseService.setSetting('reminderTime', newTime);
-    } catch (err) {
-      console.error(err);
-    }
+    requireAuth(async () => {
+      try {
+        if (!sessionCode) return;
+        await supabaseService.setSetting('reminderTime', newTime, sessionCode);
+        showNotification('સેટિંગ સેવ થયું ✅');
+      } catch (err) {
+        console.error(err);
+        showNotification('એડમિન ઍક્સેસ જરૂરી છે ❌');
+      }
+    });
   };
 
-  const handleEnabledChange = async (enabled: boolean) => {
+  const handleEnabledChange = (enabled: boolean) => {
     setReminderEnabled(enabled);
-    try {
-      await supabaseService.setSetting('reminderEnabled', enabled ? 'true' : 'false');
-    } catch (err) {
-      console.error(err);
-    }
+    requireAuth(async () => {
+      try {
+        if (!sessionCode) return;
+        await supabaseService.setSetting('reminderEnabled', enabled ? 'true' : 'false', sessionCode);
+        showNotification('સેટિંગ સેવ થયું ✅');
+      } catch (err) {
+        console.error(err);
+        showNotification('એડમિન ઍક્સેસ જરૂરી છે ❌');
+        setReminderEnabled(!enabled); // revert
+      }
+    });
   };
 
   return (
     <div className="space-y-6 pb-12">
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] glass-pill px-6 py-3 bg-card/95 text-txt font-medium whitespace-nowrap backdrop-blur-md pointer-events-none flex items-center gap-2"
+          >
+            {toastMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <header className="flex justify-between items-center">
         <h2 className="text-2xl font-bold font-gujarati">{t('settings.title' as any)}</h2>
       </header>

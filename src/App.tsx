@@ -4,6 +4,7 @@ import { useAppStore } from './store/appStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Layout } from './components/layout/Layout';
+import { AuthDialog } from './components/auth/AuthDialog';
 
 // Pages
 import { Onboarding } from './pages/Onboarding';
@@ -68,6 +69,7 @@ function App() {
           <Route path="*" element={<Onboarding />} />
         )}
       </Routes>
+      <AuthDialog />
     </BrowserRouter>
     </>
   );

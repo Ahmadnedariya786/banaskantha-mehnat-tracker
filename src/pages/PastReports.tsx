@@ -39,16 +39,18 @@ export const PastReports: React.FC = () => {
     showNotification('રિપોર્ટ લોડ થયો ✅');
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (reportToDelete !== null) {
-      try {
-        await deleteReport(reportToDelete);
-        setReportToDelete(null);
-        showNotification('રિપોર્ટ ડિલીટ થયો ✅');
-      } catch (err: any) {
-        console.error(err);
-        showNotification(err.message || 'ભૂલ આવી! ડિલીટ ન થઈ શક્યું ❌');
-      }
+      useAppStore.getState().requireAuth(async () => {
+        try {
+          await deleteReport(reportToDelete);
+          setReportToDelete(null);
+          showNotification('રિપોર્ટ ડિલીટ થયો ✅');
+        } catch (err: any) {
+          console.error(err);
+          showNotification(err.message || 'ભૂલ આવી! ડિલીટ ન થઈ શક્યું ❌');
+        }
+      });
     }
   };
 
