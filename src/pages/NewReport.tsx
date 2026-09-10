@@ -223,23 +223,29 @@ export const NewReport: React.FC = () => {
 
   const ALL_HALQAS = [...DEFAULT_HALQAS, ...customHalqas];
 
-  // Mock Calendar Grid Days
-  const calendarDays = Array.from({ length: 30 }, (_, i) => i + 1);
+  // Calendar: derive year/month from currently selected date or today
+  const calendarBase = date || localTodayIso();
+  const [calYear, calMonth] = calendarBase.split('-').map(Number);
+  const calMonthIndex = calMonth - 1; // 0-based
+  const daysInCalMonth = new Date(calYear, calMonthIndex + 1, 0).getDate();
+  const calFirstOffset = new Date(calYear, calMonthIndex, 1).getDay(); // 0=Sun
 
   return (
     <div className="space-y-6 pb-12 relative">
       {/* Toast */}
       <AnimatePresence>
         {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 glass-pill px-6 py-3 bg-card/95 text-txt font-medium whitespace-nowrap backdrop-blur-md pointer-events-none flex items-center gap-2"
-          >
-            <CheckCircle size={18} className="text-emerald-500" />
-            {toastMessage}
-          </motion.div>
+          <div className="fixed inset-x-4 bottom-24 z-[80] flex justify-center pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
+            >
+              <CheckCircle size={18} className="text-emerald-500 shrink-0" />
+              <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -384,11 +390,18 @@ export const NewReport: React.FC = () => {
                   <div key={i} className="text-xs text-sub font-gujarati">{d}</div>
                 ))}
               </div>
+              {/* Month/year heading */}
+              <div className="text-center mb-3 font-num font-bold text-txt">
+                {calYear}/{String(calMonth).padStart(2,'0')}
+              </div>
               <div className="grid grid-cols-7 gap-1 mb-6">
-                {calendarDays.map(d => {
+                {/* Offset empty cells so day 1 lands on correct weekday */}
+                {Array.from({ length: calFirstOffset }).map((_, i) => (
+                  <div key={`e${i}`} />
+                ))}
+                {Array.from({ length: daysInCalMonth }, (_, i) => i + 1).map(d => {
                   const todayStr = localTodayIso();
-                  const [yyyy, mm] = todayStr.split('-');
-                  const fullDate = `${yyyy}-${mm}-${d.toString().padStart(2, '0')}`;
+                  const fullDate = `${calYear}-${String(calMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                   const isSelected = date === fullDate;
                   const isToday = fullDate === todayStr;
                   return (
@@ -397,9 +410,9 @@ export const NewReport: React.FC = () => {
                       onClick={() => { setDate(fullDate); setShowCalendar(false); }}
                       className={cn(
                         "h-10 w-10 mx-auto rounded-full text-sm flex items-center justify-center font-num transition-transform duration-200",
-                        isSelected 
-                          ? "bg-acc text-white shadow" 
-                          : isToday 
+                        isSelected
+                          ? "bg-acc text-white shadow"
+                          : isToday
                             ? "ring-1 ring-acc/50 text-txt"
                             : "text-txt hover:bg-acc/10"
                       )}

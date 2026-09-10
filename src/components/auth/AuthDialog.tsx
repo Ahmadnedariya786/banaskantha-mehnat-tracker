@@ -45,14 +45,16 @@ export const AuthDialog: React.FC = () => {
   return (
     <AnimatePresence>
       {showToast && (
-        <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.9 }}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] glass-pill px-6 py-3 bg-card/95 text-txt font-medium whitespace-nowrap backdrop-blur-md pointer-events-none"
-        >
-          {toastMessage}
-        </motion.div>
+        <div className="fixed inset-x-4 bottom-24 z-[100] flex justify-center pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
+          >
+            <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
+          </motion.div>
+        </div>
       )}
       {authDialogOpen && (
         <>
