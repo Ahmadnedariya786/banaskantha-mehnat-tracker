@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
-import { Target, TrendingUp, Users } from 'lucide-react';
+import { Target, TrendingUp, Users, ListChecks, MapPin } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 
 // Progress Ring Component
@@ -135,9 +135,15 @@ export const Dashboard: React.FC = () => {
             </h3>
             <div className="rounded-2xl overflow-hidden bg-card shadow-lg border border-brd/40">
               {/* Accent header */}
-              <div className="py-3.5 px-4 flex items-center gap-3" style={{ background: 'rgb(var(--acc))' }}>
-                <span className="font-gujarati font-semibold text-sm text-white">પ્રવૃત્તિ</span>
-                <span className="ml-auto font-gujarati font-semibold text-sm text-white">પ્રગતિ</span>
+              <div className="py-4 px-4 flex items-center justify-between" style={{ background: 'rgb(var(--acc))' }}>
+                <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 bg-white/15 border border-white/20 backdrop-blur-sm font-gujarati font-semibold text-sm text-white whitespace-nowrap" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.25)' }}>
+                  <ListChecks size={14} />
+                  પ્રવૃત્તિ
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 bg-white/15 border border-white/20 backdrop-blur-sm font-gujarati font-semibold text-sm text-white whitespace-nowrap" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.25)' }}>
+                  <MapPin size={14} />
+                  પ્રગતિ
+                </span>
               </div>
               {/* Rows */}
               <div className="divide-y divide-brd/30">

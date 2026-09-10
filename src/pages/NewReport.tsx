@@ -5,7 +5,7 @@ import { useAppStore } from '../store/appStore';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
-import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy } from 'lucide-react';
+import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy, ListChecks, MapPin } from 'lucide-react';
 import { cn, formatDate, localTodayIso } from '../lib/utils';
 import { isDuplicateReportError } from '../services/supabaseService';
 
@@ -516,10 +516,38 @@ export const NewReport: React.FC = () => {
             <table className="w-full text-left border-collapse min-w-[640px]">
               <thead>
                 <tr style={{ background: 'rgb(var(--acc))' }}>
-                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white w-2/5">પ્રવૃત્તિ</th>
-                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white text-center">{t('header.gujishta' as any)}</th>
-                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white text-center">{t('header.azaim' as any)}</th>
-                  <th className="py-3.5 px-4 font-gujarati font-semibold text-sm text-white text-center">{t('header.maujuda' as any)}</th>
+                  <th className="py-4 px-4 w-2/5">
+                    <div className="flex items-center justify-start">
+                      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 bg-white/15 border border-white/20 backdrop-blur-sm font-gujarati font-semibold text-sm text-white whitespace-nowrap" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.25)' }}>
+                        <ListChecks size={14} />
+                        પ્રવૃત્તિ
+                      </span>
+                    </div>
+                  </th>
+                  <th className="py-4 px-4 text-center">
+                    <div className="flex items-center justify-center">
+                      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 bg-white/15 border border-white/20 backdrop-blur-sm font-gujarati font-semibold text-sm text-white whitespace-nowrap" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.25)' }}>
+                        <MapPin size={14} />
+                        {t('header.gujishta' as any)}
+                      </span>
+                    </div>
+                  </th>
+                  <th className="py-4 px-4 text-center">
+                    <div className="flex items-center justify-center">
+                      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 bg-white/15 border border-white/20 backdrop-blur-sm font-gujarati font-semibold text-sm text-white whitespace-nowrap" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.25)' }}>
+                        <MapPin size={14} />
+                        {t('header.azaim' as any)}
+                      </span>
+                    </div>
+                  </th>
+                  <th className="py-4 px-4 text-center">
+                    <div className="flex items-center justify-center">
+                      <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 bg-white/15 border border-white/20 backdrop-blur-sm font-gujarati font-semibold text-sm text-white whitespace-nowrap" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.25)' }}>
+                        <MapPin size={14} />
+                        {t('header.maujuda' as any)}
+                      </span>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brd/30">
