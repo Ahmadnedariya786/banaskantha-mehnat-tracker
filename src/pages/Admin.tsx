@@ -7,9 +7,11 @@ import { Shield, Users, Activity, Database, Lock, ChevronLeft, CheckCircle, Key,
 import { getLogs, clearLogs, type SystemLog, logActivity } from '../lib/utils';
 import { useAppStore } from '../store/appStore';
 import { supabaseService } from '../services/supabaseService';
+import { useNavigate } from 'react-router-dom';
 
 export const Admin: React.FC = () => {
   const { sessionCode, sessionRole, setSession, reports, halqas } = useAppStore();
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,10 +71,35 @@ export const Admin: React.FC = () => {
   };
 
   useEffect(() => {
+    let mounted = true;
+    const checkAuth = async () => {
+      if (sessionRole === 'admin' && sessionCode) {
+        try {
+          const role = await supabaseService.loginCode(sessionCode);
+          if (role !== 'admin' && mounted) {
+            setSession(null, null);
+          }
+        } catch {
+          if (mounted) setSession(null, null);
+        }
+      }
+    };
+    checkAuth();
+    return () => { mounted = false; };
+  }, [sessionCode, sessionRole, setSession]);
+
+  useEffect(() => {
     if (activeScreen === 'users' && sessionRole === 'admin') {
       loadCodes();
     }
   }, [activeScreen, sessionRole]);
+
+  const handleLogout = () => {
+    if (window.confirm('શું તમે ખરેખર લૉગઆઉટ કરવા માંગો છો?')) {
+      setSession(null, null);
+      navigate('/');
+    }
+  };
 
   const handleGenerateCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,10 +244,18 @@ export const Admin: React.FC = () => {
       {activeScreen === 'main' && (
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
           <header className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold font-gujarati flex items-center gap-2">
-              <Shield className="text-acc" />
-              {t('admin.dashboard_title' as any)}
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold font-gujarati flex items-center gap-2">
+                <Shield className="text-acc" />
+                {t('admin.dashboard_title' as any)}
+              </h2>
+              <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 rounded-full text-xs font-gujarati font-medium whitespace-nowrap">
+                એડમિન લૉગિન ✅
+              </span>
+            </div>
+            <button onClick={handleLogout} className="text-sm font-gujarati bg-card hover:bg-card/80 border border-brd/10 px-3 py-1.5 rounded-full text-txt transition-colors">
+              🔒 લૉગઆઉટ
+            </button>
           </header>
 
           <div className="grid grid-cols-2 gap-4">
@@ -261,7 +296,7 @@ export const Admin: React.FC = () => {
               <GlassCard key={c.id} className={`p-4 flex items-center justify-between ${c.revoked_at ? 'opacity-50' : ''}`}>
                 <div>
                   <div className="font-gujarati font-bold text-txt">{c.label}</div>
-                  <div className="font-num text-sm text-sub mt-1">MT-****-**** <span className="font-gujarati ml-2 text-xs">({new Date(c.created_at).toLocaleDateString('en-IN')})</span></div>
+                  <div className="font-num text-sm text-sub mt-1">{c.masked_code || 'MT-****-****'} <span className="font-gujarati ml-2 text-xs">({new Date(c.created_at).toLocaleDateString('en-IN')})</span></div>
                   {c.revoked_at && <div className="text-xs text-acc font-gujarati mt-1">રદ કરેલ: {new Date(c.revoked_at).toLocaleDateString('en-IN')}</div>}
                 </div>
                 {!c.revoked_at && (
@@ -278,60 +313,57 @@ export const Admin: React.FC = () => {
 
           <AnimatePresence>
             {showGenerateModal && (
-              <>
-                <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" onClick={() => { if(!generatedCode) setShowGenerateModal(false); }} />
-                <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm z-50">
-                  <GlassCard className="p-6">
-                    {generatedCode ? (
-                      <div className="space-y-6 text-center">
-                        <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
-                          <CheckCircle size={32} />
-                        </div>
-                        <div>
-                          <h3 className="font-gujarati font-bold text-lg text-txt">નવો કોડ તૈયાર છે</h3>
-                          <p className="text-sub text-sm font-gujarati mt-1">આ કોડ એક જ વાર દેખાશે. યુઝરને મોકલી આપો.</p>
-                        </div>
-                        <div className="bg-card py-3 px-4 rounded-xl border border-brd/10 font-num text-xl font-bold tracking-widest text-txt">
-                          {generatedCode}
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <LiquidButton variant="neutral" onClick={() => copyToClipboard(generatedCode)}>
-                            <Copy size={18} className="mr-2" /> કૉપિ
-                          </LiquidButton>
-                          <LiquidButton onClick={() => {
-                            const text = `તમારો રિપોર્ટિંગ કોડ: ${generatedCode}`;
-                            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-                          }}>
-                            <Share2 size={18} className="mr-2" /> શેર
-                          </LiquidButton>
-                        </div>
-                        <button onClick={() => { setGeneratedCode(null); setShowGenerateModal(false); }} className="text-sm font-gujarati text-sub underline pt-2">બંધ કરો</button>
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget && !generatedCode) setShowGenerateModal(false); }}>
+                <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="w-[92%] max-w-sm rounded-2xl bg-card p-5 text-center shadow-2xl border border-brd/10">
+                  {generatedCode ? (
+                    <div className="space-y-6">
+                      <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
+                        <CheckCircle size={32} />
                       </div>
-                    ) : (
-                      <form onSubmit={handleGenerateCode} className="space-y-4">
-                        <h3 className="font-gujarati font-bold text-lg text-txt text-center">નવો પાસવર્ડ બનાવો</h3>
-                        <input
-                          type="text"
-                          value={newCodeLabel}
-                          onChange={e => setNewCodeLabel(e.target.value)}
-                          placeholder="કોડ કોને આપ્યો? નામ લખો"
-                          className="w-full bg-card rounded-md px-4 py-3 outline-none shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] font-gujarati focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] text-txt"
-                          required
-                          autoFocus
-                        />
-                        <div className="flex gap-3 pt-2">
-                          <LiquidButton type="button" variant="neutral" className="flex-1" onClick={() => setShowGenerateModal(false)}>
-                            રદ કરો
-                          </LiquidButton>
-                          <LiquidButton type="submit" className="flex-1" disabled={isLoading || !newCodeLabel.trim()}>
-                            બનાવો
-                          </LiquidButton>
-                        </div>
-                      </form>
-                    )}
-                  </GlassCard>
+                      <div>
+                        <h3 className="font-gujarati font-bold text-lg text-txt">નવો કોડ તૈયાર છે</h3>
+                        <p className="text-sub text-sm font-gujarati mt-1">આ કોડ એક જ વાર દેખાશે. યુઝરને મોકલી આપો.</p>
+                      </div>
+                      <div className="bg-card/50 py-3 px-4 rounded-xl border border-brd/10 font-num text-xl font-bold tracking-widest text-txt">
+                        {generatedCode}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <LiquidButton variant="neutral" onClick={() => copyToClipboard(generatedCode)}>
+                          <Copy size={18} className="mr-2" /> કૉપિ
+                        </LiquidButton>
+                        <LiquidButton onClick={() => {
+                          const text = `તમારો રિપોર્ટિંગ કોડ: ${generatedCode}`;
+                          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+                        }}>
+                          <Share2 size={18} className="mr-2" /> શેર
+                        </LiquidButton>
+                      </div>
+                      <button onClick={() => { setGeneratedCode(null); setShowGenerateModal(false); }} className="text-sm font-gujarati text-sub underline pt-2 inline-block">બંધ કરો</button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleGenerateCode} className="space-y-4">
+                      <h3 className="font-gujarati font-bold text-lg text-txt">નવો પાસવર્ડ બનાવો</h3>
+                      <input
+                        type="text"
+                        value={newCodeLabel}
+                        onChange={e => setNewCodeLabel(e.target.value)}
+                        placeholder="કોડ કોને આપ્યો? નામ લખો"
+                        className="w-full bg-card/50 rounded-xl px-4 py-3 outline-none border border-brd/10 font-gujarati focus:border-acc text-txt"
+                        required
+                        autoFocus
+                      />
+                      <div className="flex gap-3 pt-2">
+                        <LiquidButton type="button" variant="neutral" className="flex-1" onClick={() => setShowGenerateModal(false)}>
+                          રદ કરો
+                        </LiquidButton>
+                        <LiquidButton type="submit" className="flex-1" disabled={isLoading || !newCodeLabel.trim()}>
+                          બનાવો
+                        </LiquidButton>
+                      </div>
+                    </form>
+                  )}
                 </motion.div>
-              </>
+              </div>
             )}
           </AnimatePresence>
         </motion.div>
