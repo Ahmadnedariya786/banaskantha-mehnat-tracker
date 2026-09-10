@@ -25,7 +25,12 @@ export const NewReport: React.FC = () => {
 
   // Form State
   const [halqa, setHalqa] = useState('');
-  const [date, setDate] = useState(localTodayIso());
+  const [date, setDate] = useState(() => sessionStorage.getItem('currentDate') || localTodayIso());
+  
+  useEffect(() => {
+    sessionStorage.setItem('currentDate', date);
+  }, [date]);
+
   const [stats, setStats] = useState({
     std_10: 0, std_11: 0, std_12: 0, college: 0, engineering: 0, medical: 0, muslim_teachers: 0
   });
@@ -77,6 +82,8 @@ export const NewReport: React.FC = () => {
       });
       showNotification('રિપોર્ટ સેવ થયો ✅');
       setHalqa('');
+      sessionStorage.removeItem('currentDate');
+      setDate(localTodayIso());
       setStats({ std_10: 0, std_11: 0, std_12: 0, college: 0, engineering: 0, medical: 0, muslim_teachers: 0 });
       setActivities({});
       setMashwara('');
@@ -90,6 +97,8 @@ export const NewReport: React.FC = () => {
 
   const confirmClear = () => {
     setHalqa('');
+    sessionStorage.removeItem('currentDate');
+    setDate(localTodayIso());
     setStats({ std_10: 0, std_11: 0, std_12: 0, college: 0, engineering: 0, medical: 0, muslim_teachers: 0 });
     setActivities({});
     setMashwara('');
@@ -154,7 +163,7 @@ export const NewReport: React.FC = () => {
   useEffect(() => {
     if (draftReport && !halqa) {
       setHalqa(draftReport.halqa || '');
-      setDate(draftReport.date || localTodayIso());
+      // Date is not restored from draft.
       setStats(draftReport.stats || stats);
       setActivities(draftReport.activities || {});
       setMashwara(draftReport.mashwara || '');

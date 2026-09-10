@@ -4,14 +4,7 @@ import App from './App.tsx'
 import './index.css'
 import './theme.css'
 
-const storedState = localStorage.getItem('theme-storage');
-let initialTheme = 'outdoor';
-if (storedState) {
-  try {
-    initialTheme = JSON.parse(storedState).state.theme;
-  } catch (e) {}
-}
-document.documentElement.setAttribute('data-theme', initialTheme);
+// Theme initialization is handled in index.html to prevent flash of wrong theme
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
