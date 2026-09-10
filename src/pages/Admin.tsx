@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
-import { Shield, Users, Activity, Database, Lock } from 'lucide-react';
+import { Shield, Users, Activity, Database, Lock, ChevronLeft, CheckCircle } from 'lucide-react';
+import { getLogs, clearLogs, type SystemLog, logActivity } from '../lib/utils';
+import { useAppStore } from '../store/appStore';
 
 export const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,6 +13,19 @@ export const Admin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [activeScreen, setActiveScreen] = useState<'main' | 'users' | 'logs'>('main');
+  const [logs, setLogs] = useState<SystemLog[]>([]);
+  const { reports, halqas } = useAppStore();
+
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  const showNotification = (msg: string) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +49,35 @@ export const Admin: React.FC = () => {
       setError(true);
     }
     setIsLoading(false);
+  };
+
+  const handleBackup = () => {
+    const data = {
+      generatedAt: new Date().toISOString(),
+      reports,
+      halqas,
+      settings: {}
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    logActivity('ડેટા બેકઅપ ડાઉનલોડ');
+    showNotification('બેકઅપ ડાઉનલોડ થયું ✅');
+  };
+
+  const openLogs = () => {
+    setLogs(getLogs());
+    setActiveScreen('logs');
+  };
+
+  const handleClearLogs = () => {
+    clearLogs();
+    setLogs([]);
+    showNotification('લૉગ્સ સાફ થયા ✅');
   };
 
   if (!isAuthenticated) {
@@ -87,30 +131,106 @@ export const Admin: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 pb-12">
-      <header className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold font-gujarati flex items-center gap-2">
-          <Shield className="text-acc" />
-          {t('admin.dashboard_title' as any)}
-        </h2>
-      </header>
+    <div className="space-y-6 pb-12 relative">
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 glass-pill px-6 py-3 bg-card/95 text-txt font-medium whitespace-nowrap backdrop-blur-md pointer-events-none flex items-center gap-2"
+          >
+            <CheckCircle size={18} className="text-emerald-500" />
+            {toastMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="grid grid-cols-2 gap-4">
-        <GlassCard hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
-          <Users size={32} className="text-sub" />
-          <span className="font-gujarati font-medium text-sm">{t('admin.manage_users' as any)}</span>
-        </GlassCard>
+      {activeScreen === 'main' && (
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
+          <header className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold font-gujarati flex items-center gap-2">
+              <Shield className="text-acc" />
+              {t('admin.dashboard_title' as any)}
+            </h2>
+          </header>
 
-        <GlassCard hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
-          <Activity size={32} className="text-sub" />
-          <span className="font-gujarati font-medium text-sm">{t('admin.system_logs' as any)}</span>
-        </GlassCard>
+          <div className="grid grid-cols-2 gap-4">
+            <GlassCard onClick={() => setActiveScreen('users')} hoverEffect className="relative p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
+              <div className="absolute top-3 right-3 w-6 h-6 bg-acc/10 text-acc rounded-full flex items-center justify-center">
+                <Lock size={12} />
+              </div>
+              <Users size={32} className="text-sub" />
+              <span className="font-gujarati font-medium text-sm">{t('admin.manage_users' as any)}</span>
+            </GlassCard>
 
-        <GlassCard hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
-          <Database size={32} className="text-sub" />
-          <span className="font-gujarati font-medium text-sm">{t('settings.data_backup' as any)}</span>
-        </GlassCard>
-      </div>
+            <GlassCard onClick={openLogs} hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
+              <Activity size={32} className="text-sub" />
+              <span className="font-gujarati font-medium text-sm">{t('admin.system_logs' as any)}</span>
+            </GlassCard>
+
+            <GlassCard onClick={handleBackup} hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
+              <Database size={32} className="text-sub" />
+              <span className="font-gujarati font-medium text-sm">{t('settings.data_backup' as any)}</span>
+            </GlassCard>
+          </div>
+        </motion.div>
+      )}
+
+      {activeScreen === 'users' && (
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+          <header className="flex items-center gap-4">
+            <button onClick={() => setActiveScreen('main')} className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-sub">
+              <ChevronLeft size={20} />
+            </button>
+            <h2 className="text-2xl font-bold font-gujarati">{t('admin.manage_users' as any)}</h2>
+          </header>
+          <GlassCard className="p-8 text-center space-y-4">
+            <div className="w-16 h-16 bg-acc/10 rounded-full flex items-center justify-center mx-auto text-acc">
+              <Lock size={32} />
+            </div>
+            <p className="font-gujarati text-lg font-medium text-txt">લોગિન સિસ્ટમ (S5) આવ્યા પછી સક્રિય થશે</p>
+          </GlassCard>
+        </motion.div>
+      )}
+
+      {activeScreen === 'logs' && (
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+          <header className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setActiveScreen('main')} className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-sub">
+                <ChevronLeft size={20} />
+              </button>
+              <h2 className="text-2xl font-bold font-gujarati">{t('admin.system_logs' as any)}</h2>
+            </div>
+          </header>
+          
+          <GlassCard className="p-4 space-y-4">
+            <div className="flex justify-between items-center pb-4 border-b border-brd/10">
+              <span className="font-gujarati font-medium text-sub">છેલ્લા 50 લૉગ્સ</span>
+              <LiquidButton variant="danger" onClick={handleClearLogs} className="py-2 px-4 text-sm font-gujarati">
+                લૉગ્સ સાફ કરો
+              </LiquidButton>
+            </div>
+            
+            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+              {logs.length === 0 ? (
+                <div className="text-center py-8 text-sub font-gujarati">કોઈ લૉગ્સ નથી</div>
+              ) : (
+                logs.map((log, i) => (
+                  <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-card/40 border border-brd/5">
+                    <span className="font-gujarati font-medium text-txt">{log.action}</span>
+                    <span className="font-num text-xs text-sub">
+                      {new Date(log.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true, dateStyle: 'short', timeStyle: 'short' })}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
     </div>
   );
 };
+

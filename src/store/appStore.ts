@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { supabaseService } from '../services/supabaseService'
+import { logActivity } from '../lib/utils'
 
 export interface SavedReport {
   id: string;
@@ -73,6 +74,7 @@ export const useAppStore = create<AppState>()(
         try {
           const saved = await supabaseService.saveReport(report)
           set((state) => ({ reports: [saved, ...state.reports] }))
+          logActivity('રિપોર્ટ સેવ કર્યો');
         } catch (err) {
           console.error(err)
           throw err
@@ -85,6 +87,7 @@ export const useAppStore = create<AppState>()(
           set((state) => ({ 
             reports: state.reports.map(r => r.id === id ? updated : r) 
           }))
+          logActivity('રિપોર્ટ અપડેટ કર્યો');
         } catch (err) {
           console.error(err)
           throw err
@@ -95,6 +98,7 @@ export const useAppStore = create<AppState>()(
         try {
           await supabaseService.deleteReport(id)
           set((state) => ({ reports: state.reports.filter(r => r.id !== id) }))
+          logActivity('રિપોર્ટ ડિલીટ કર્યો');
         } catch (err) {
           console.error(err)
           throw err
