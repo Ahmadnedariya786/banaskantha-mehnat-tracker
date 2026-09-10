@@ -137,7 +137,24 @@ export const Admin: React.FC = () => {
     showNotification('લૉગ્સ સાફ થયા ✅');
   };
 
-  if (sessionRole !== 'admin') {
+  if (sessionRole === 'team') {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-6">
+        <GlassCard className="w-full max-w-sm p-8 space-y-6 text-center">
+          <div className="w-16 h-16 bg-acc/10 rounded-full flex items-center justify-center mx-auto text-acc mb-4">
+            <Lock size={32} />
+          </div>
+          <h2 className="text-2xl font-bold font-gujarati text-txt">ઍક્સેસ નથી</h2>
+          <p className="text-sm font-gujarati text-sub mb-6">આ પેજ માત્ર એડમિન માટે છે.</p>
+          <LiquidButton onClick={() => window.history.back()} className="w-full" type="button">
+            પાછા જાઓ
+          </LiquidButton>
+        </GlassCard>
+      </div>
+    );
+  }
+
+  if (!sessionRole) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-6">
         <GlassCard className="w-full max-w-sm p-8 space-y-6">
@@ -146,7 +163,7 @@ export const Admin: React.FC = () => {
               <Lock size={32} />
             </div>
             <h2 className="text-2xl font-bold font-gujarati">એડમિન લૉગિન</h2>
-            <p className="text-sm font-gujarati text-sub">પ્રથમ વખત લોગિન કરતા હોવ તો નવો પાસવર્ડ નાખી સેટ કરો.</p>
+            <p className="text-sm font-gujarati text-sub">પ્રથમ વખત લોગિન કરતા હોવ તો નવો પાસવર્ડ સેટ કરો, અન્યથા તમારો એડમિન કોડ દાખલ કરો.</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-4">
@@ -207,17 +224,17 @@ export const Admin: React.FC = () => {
           </header>
 
           <div className="grid grid-cols-2 gap-4">
-            <GlassCard onClick={() => setActiveScreen('users')} hoverEffect className="relative p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
+            <GlassCard onClick={() => setActiveScreen('users')} hoverEffect className="cursor-pointer rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3 min-h-[160px] max-h-[220px]">
               <Users size={32} className="text-acc" />
-              <span className="font-gujarati font-medium text-sm">{t('admin.manage_users' as any)}</span>
+              <span className="font-gujarati font-medium text-sm">🔑 પાસવર્ડ મેનેજ કરો</span>
             </GlassCard>
 
-            <GlassCard onClick={openLogs} hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
+            <GlassCard onClick={openLogs} hoverEffect className="cursor-pointer rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3 min-h-[160px] max-h-[220px]">
               <Activity size={32} className="text-sub" />
               <span className="font-gujarati font-medium text-sm">{t('admin.system_logs' as any)}</span>
             </GlassCard>
 
-            <GlassCard onClick={handleBackup} hoverEffect className="p-4 flex flex-col items-center justify-center text-center gap-3 aspect-square cursor-pointer">
+            <GlassCard onClick={handleBackup} hoverEffect className="cursor-pointer rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3 min-h-[160px] max-h-[220px]">
               <Database size={32} className="text-sub" />
               <span className="font-gujarati font-medium text-sm">{t('settings.data_backup' as any)}</span>
             </GlassCard>
