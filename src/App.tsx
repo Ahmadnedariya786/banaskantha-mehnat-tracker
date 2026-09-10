@@ -17,13 +17,19 @@ import { Gallery } from './pages/Gallery';
 
 function App() {
   const { hasCompletedOnboarding, loadData } = useAppStore();
-  const [showGreeting, setShowGreeting] = useState(true);
+  const [showGreeting, setShowGreeting] = useState(() => !sessionStorage.getItem('greeted'));
   
   useEffect(() => {
     loadData();
-    const t = setTimeout(() => setShowGreeting(false), 2000);
-    return () => clearTimeout(t);
   }, [loadData]);
+
+  useEffect(() => {
+    if (!sessionStorage.getItem('greeted')) {
+      sessionStorage.setItem('greeted', 'true');
+      const t = setTimeout(() => setShowGreeting(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, []);
 
   return (
     <>
@@ -35,9 +41,9 @@ function App() {
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-bg pointer-events-none"
           >
-            <div className="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center shadow-2xl backdrop-blur-xl">
-              <h1 className="text-4xl sm:text-5xl font-bold font-gujarati text-txt mb-2">અસ્સલામુ અલયકુમ</h1>
-              <p className="text-sm sm:text-base font-bold tracking-[0.2em] text-sub uppercase font-num">Assalamu Alaykum</p>
+            <div className="glass-panel w-[86%] max-w-md mx-auto rounded-3xl p-6 text-center shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
+              <h1 className="font-bold font-gujarati text-txt mb-2 text-center leading-tight text-balance" style={{ fontSize: 'clamp(1.6rem, 7vw, 3rem)' }}>અસ્સલામુ અલયકુમ</h1>
+              <span className="block text-center text-xs tracking-[0.2em] text-sub uppercase font-num mt-2">ASSALAMU ALAYKUM</span>
             </div>
           </motion.div>
         )}
