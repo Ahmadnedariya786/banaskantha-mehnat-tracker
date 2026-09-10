@@ -104,7 +104,18 @@ export const PastReports: React.FC = () => {
     ws['!cols'] = [{wch:32}, {wch:12}, {wch:12}, {wch:12}];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "રિપોર્ટ");
-    XLSX.writeFile(wb, `mehnat_${report.halqa}_${report.date}.xlsx`);
+    
+    const filename = `mehnat_${report.halqa}_${report.date}.xlsx`;
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    (window as any).AndroidPrepareDownload?.(filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    
     showNotification('Excel ડાઉનલોડ થઈ ✅');
   };
 
@@ -155,7 +166,17 @@ export const PastReports: React.FC = () => {
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
 
-    XLSX.writeFile(wb, `all_reports.xlsx`);
+    const filename = `all_reports.xlsx`;
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    (window as any).AndroidPrepareDownload?.(filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    
     showNotification('બધા રિપોર્ટ Excel ડાઉનલોડ થયા ✅');
   };
 

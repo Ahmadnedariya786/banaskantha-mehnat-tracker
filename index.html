@@ -9,6 +9,11 @@
       let t = localStorage.getItem('theme');
       if (!t) { t = 'dark'; localStorage.setItem('theme', t); }
       document.documentElement.setAttribute('data-theme', t);
+      
+      window.AndroidPrepareDownload = function(filename, mime) {
+        window.AndroidPreparedFilename = filename;
+        window.AndroidPreparedMime = mime;
+      };
     </script>
   </head>
   <body>

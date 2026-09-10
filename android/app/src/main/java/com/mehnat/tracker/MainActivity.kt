@@ -75,9 +75,37 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        webView.addJavascriptInterface(AndroidDownloader(this), "AndroidDownloader")
+
         webView.webChromeClient = WebChromeClient()
 
         webView.setDownloadListener(DownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+            if (url.startsWith("blob:")) {
+                val js = """
+                    (function() {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', '$url', true);
+                        xhr.responseType = 'blob';
+                        xhr.onload = function(e) {
+                            if (this.status == 200) {
+                                var blob = this.response;
+                                var reader = new FileReader();
+                                reader.readAsDataURL(blob);
+                                reader.onloadend = function() {
+                                    var base64data = reader.result;
+                                    var filename = window.AndroidPreparedFilename || 'download';
+                                    var mime = window.AndroidPreparedMime || '$mimetype';
+                                    window.AndroidDownloader.saveBase64(base64data, filename, mime);
+                                }
+                            }
+                        };
+                        xhr.send();
+                    })();
+                """.trimIndent()
+                webView.evaluateJavascript(js, null)
+                return@DownloadListener
+            }
+
             try {
                 val request = DownloadManager.Request(Uri.parse(url))
                 request.setMimeType(mimetype)
@@ -97,6 +125,44 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "ડાઉનલોડ નિષ્ફળ: " + e.message, Toast.LENGTH_LONG).show()
             }
         })
+    }
+
+    inner class AndroidDownloader(private val context: Context) {
+        @android.webkit.JavascriptInterface
+        fun saveBase64(base64Data: String, filename: String, mimeType: String) {
+            try {
+                val pureBase64 = if (base64Data.contains(",")) base64Data.split(",")[1] else base64Data
+                val bytes = android.util.Base64.decode(pureBase64, android.util.Base64.DEFAULT)
+                
+                val values = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+
+                val uri = context.contentResolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                if (uri != null) {
+                    context.contentResolver.openOutputStream(uri)?.use {
+                        it.write(bytes)
+                    }
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(context, "ડાઉનલોડ સફળ ✅", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val file = java.io.File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename)
+                    java.io.FileOutputStream(file).use {
+                        it.write(bytes)
+                    }
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(context, "ડાઉનલોડ સફળ ✅", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(context, "ડાઉનલોડ નિષ્ફળ ❌", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun checkInternetAndLoad() {

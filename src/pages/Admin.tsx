@@ -59,10 +59,12 @@ export const Admin: React.FC = () => {
       settings: {}
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const filename = `backup_${new Date().toISOString().split('T')[0]}.json`;
+    (window as any).AndroidPrepareDownload?.(filename, 'application/json');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
     logActivity('ડેટા બેકઅપ ડાઉનલોડ');
