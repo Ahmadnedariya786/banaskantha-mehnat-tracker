@@ -7,12 +7,12 @@ import type { SavedReport } from '../store/appStore';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
-import { Calendar, Users, MapPin, Download, Share2, Edit3, Trash2, Search, CheckCircle, Plus } from 'lucide-react';
+import { Calendar, Users, MapPin, Download, Share2, Edit3, Trash2, Search, CheckCircle, Plus, Lock } from 'lucide-react';
 import { formatDate } from '../lib/utils';
 
 export const PastReports: React.FC = () => {
   const navigate = useNavigate();
-  const { reports, deleteReport, setDraftReport } = useAppStore();
+  const { reports, deleteReport, setDraftReport, sessionRole } = useAppStore();
   const [search, setSearch] = useState('');
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   
@@ -231,10 +231,12 @@ export const PastReports: React.FC = () => {
           <Plus size={18} />
           <span className="font-gujarati">{t('nav.new_report')}</span>
         </LiquidButton>
-        <LiquidButton variant="neutral" className="flex-1 flex flex-row items-center justify-center gap-2 whitespace-nowrap px-6 py-3.5 max-[380px]:text-sm text-acc border-acc2/30" onClick={handleDownloadAllExcel}>
-          <Download size={18} />
-          <span className="font-gujarati">{t('past_reports.btn_all_excel' as any)}</span>
-        </LiquidButton>
+        {sessionRole && (
+          <LiquidButton variant="neutral" className="flex-1 flex flex-row items-center justify-center gap-2 whitespace-nowrap px-6 py-3.5 max-[380px]:text-sm text-acc border-acc2/30" onClick={handleDownloadAllExcel}>
+            <Download size={18} />
+            <span className="font-gujarati">{t('past_reports.btn_all_excel' as any)}</span>
+          </LiquidButton>
+        )}
       </div>
 
       {/* Search Bar */}
@@ -301,19 +303,23 @@ export const PastReports: React.FC = () => {
                 {/* Action Row */}
                 <div className="flex justify-between items-center pt-2 mt-2 border-t border-brd/10">
                   <div className="flex gap-2">
-                    <button className="w-9 h-9 rounded-full flex items-center justify-center text-acc hover:bg-acc/10 " onClick={() => handleShareWhatsApp(report)}>
-                      <Share2 size={16} />
-                    </button>
-                    <button className="w-9 h-9 rounded-full flex items-center justify-center text-acc hover:bg-acc/10 " onClick={() => handleDownloadExcel(report)}>
-                      <Download size={16} />
-                    </button>
+                    {sessionRole && (
+                      <>
+                        <button className="w-9 h-9 rounded-full flex items-center justify-center text-acc hover:bg-acc/10 " onClick={() => handleShareWhatsApp(report)}>
+                          <Share2 size={16} />
+                        </button>
+                        <button className="w-9 h-9 rounded-full flex items-center justify-center text-acc hover:bg-acc/10 " onClick={() => handleDownloadExcel(report)}>
+                          <Download size={16} />
+                        </button>
+                      </>
+                    )}
                   </div>
                   <div className="flex gap-2">
-                    <button className="w-9 h-9 rounded-full flex items-center justify-center text-acc hover:bg-acc/10 " onClick={() => handleEdit(report)}>
-                      <Edit3 size={16} />
+                    <button className="w-9 h-9 rounded-full flex items-center justify-center text-acc hover:bg-acc/10 " onClick={() => { if (!sessionRole) { useAppStore.setState({ authDialogOpen: true, authPendingAction: null }); return; } handleEdit(report); }}>
+                      {!sessionRole ? <Lock size={16} /> : <Edit3 size={16} />}
                     </button>
-                    <button className="w-9 h-9 rounded-full flex items-center justify-center text-danger hover:bg-danger/10 " onClick={() => setReportToDelete(report.id)}>
-                      <Trash2 size={16} />
+                    <button className="w-9 h-9 rounded-full flex items-center justify-center text-danger hover:bg-danger/10 " onClick={() => { if (!sessionRole) { useAppStore.setState({ authDialogOpen: true, authPendingAction: null }); return; } setReportToDelete(report.id); }}>
+                      {!sessionRole ? <Lock size={16} /> : <Trash2 size={16} />}
                     </button>
                   </div>
                 </div>

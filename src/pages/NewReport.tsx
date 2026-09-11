@@ -5,7 +5,7 @@ import { useAppStore } from '../store/appStore';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
-import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy, ListChecks, MapPin } from 'lucide-react';
+import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy, ListChecks, MapPin, Lock } from 'lucide-react';
 import { cn, formatDate, localTodayIso } from '../lib/utils';
 import { isDuplicateReportError } from '../services/supabaseService';
 
@@ -18,7 +18,7 @@ const ACTIVITY_KEYS = [
 ];
 
 export const NewReport: React.FC = () => {
-  const { draftReport, setDraftReport, clearDraft, halqas, customHalqas, addCustomHalqa, removeCustomHalqa, addReport } = useAppStore();
+  const { draftReport, setDraftReport, clearDraft, halqas, customHalqas, addCustomHalqa, removeCustomHalqa, addReport, sessionRole } = useAppStore();
   
   // Toasts
   const [showToast, setShowToast] = useState(false);
@@ -340,19 +340,19 @@ export const NewReport: React.FC = () => {
                   </button>
                   {customHalqas.includes(h) && (
                 <button 
-                  onClick={() => setHalqaToDelete(h)}
+                  onClick={(e) => { e.stopPropagation(); if (!sessionRole) { useAppStore.setState({ authDialogOpen: true, authPendingAction: null }); return; } setHalqaToDelete(h); }}
                   className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center shadow-md scale-0 group-hover:scale-100 transition-transform"
                 >
-                  <X size={12} />
+                  {!sessionRole ? <Lock size={12} /> : <X size={12} />}
                 </button>
               )}
             </div>
           ))}
           <button 
-            onClick={() => setShowHalqaDialog(true)}
+            onClick={() => { if (!sessionRole) { useAppStore.setState({ authDialogOpen: true, authPendingAction: null }); return; } setShowHalqaDialog(true); }}
             className="snap-start whitespace-nowrap px-4 py-2 rounded-full border border-dashed border-sub/30 text-sub hover:bg-sub/10  flex items-center gap-1 font-gujarati"
           >
-            <Plus size={16} /> {t('action.add_halqa' as any)}
+            {!sessionRole ? <Lock size={16} /> : <Plus size={16} />} {t('action.add_halqa' as any)}
           </button>
         </div>
       </section>
@@ -486,24 +486,28 @@ export const NewReport: React.FC = () => {
 
       {/* Action Buttons (2-col grid, wired toasts) */}
       <div className="order-6 xl:order-none grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-        <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5 text-danger border-danger/30 bg-danger/10 hover:bg-danger/20" onClick={() => setShowClearConfirm(true)}>
-          <Trash2 size={16} className="mr-2 shrink-0" /> <span className="font-gujarati text-center">{t('action.delete' as any)}</span>
+        <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5 text-danger border-danger/30 bg-danger/10 hover:bg-danger/20" onClick={() => { if (!sessionRole) { useAppStore.setState({ authDialogOpen: true, authPendingAction: null }); return; } setShowClearConfirm(true); }}>
+          {!sessionRole ? <Lock size={16} className="mr-2 shrink-0" /> : <Trash2 size={16} className="mr-2 shrink-0" />} <span className="font-gujarati text-center">{t('action.delete' as any)}</span>
         </LiquidButton>
-        <LiquidButton variant="primary" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleSave}>
-          <Save size={16} className="mr-2 shrink-0" /> <span className="font-gujarati text-center">{t('action.save' as any)}</span>
+        <LiquidButton variant="primary" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={() => { if (!sessionRole) { useAppStore.setState({ authDialogOpen: true, authPendingAction: null }); return; } handleSave(); }}>
+          {!sessionRole ? <Lock size={16} className="mr-2 shrink-0" /> : <Save size={16} className="mr-2 shrink-0" />} <span className="font-gujarati text-center">{t('action.save' as any)}</span>
         </LiquidButton>
-        <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleWhatsApp}>
-          <Share2 size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">{t('action.share_whatsapp' as any)}</span>
-        </LiquidButton>
-        <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleCopy}>
-          <Copy size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">કોપી કરો</span>
-        </LiquidButton>
-        <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleDownloadExcel}>
-          <Download size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">{t('action.export_excel' as any)}</span>
-        </LiquidButton>
-        <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleDownloadPdf}>
-          <Download size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">{t('action.export_pdf' as any)}</span>
-        </LiquidButton>
+        {sessionRole && (
+          <>
+            <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleWhatsApp}>
+              <Share2 size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">{t('action.share_whatsapp' as any)}</span>
+            </LiquidButton>
+            <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleCopy}>
+              <Copy size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">કોપી કરો</span>
+            </LiquidButton>
+            <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleDownloadExcel}>
+              <Download size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">{t('action.export_excel' as any)}</span>
+            </LiquidButton>
+            <LiquidButton variant="neutral" className="w-full px-4 min-w-0 h-auto py-2.5" onClick={handleDownloadPdf}>
+              <Download size={16} className="mr-2 text-acc shrink-0" /> <span className="font-gujarati text-sm text-center">{t('action.export_pdf' as any)}</span>
+            </LiquidButton>
+          </>
+        )}
       </div>
         </div>
 
