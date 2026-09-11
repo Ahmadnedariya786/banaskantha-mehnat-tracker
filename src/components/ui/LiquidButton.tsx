@@ -32,12 +32,13 @@ export const LiquidButton = React.forwardRef<HTMLButtonElement, LiquidButtonProp
 
     // Glow and fill colors based on variant
     const variantGlow = {
-      primary: "from-blue-500/90 to-blue-600/80 shadow-blue-500/60",
+      primary: "from-[rgb(var(--acc)/0.9)] to-[rgb(var(--acc2)/0.8)] shadow-[0_8px_24px_rgb(var(--acc)/0.45)]",
       neutral: "from-white/40 to-slate-200/20 shadow-slate-400/40",
       success: "from-emerald-500/90 to-emerald-600/80 shadow-emerald-500/60",
       warning: "from-amber-400/90 to-amber-500/80 shadow-amber-500/60",
       danger: "from-red-500/90 to-red-600/80 shadow-red-500/60",
     };
+
 
     // Variant-specific ring colors (via box-shadow override where needed)
     const variantBorders = {

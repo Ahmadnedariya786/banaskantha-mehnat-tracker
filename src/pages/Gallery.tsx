@@ -97,7 +97,7 @@ export const Gallery: React.FC = () => {
             <Home size={20} />
             <span className="text-[10px] mt-1 font-medium">{t('nav.dashboard')}</span>
           </div>
-          <div className="flex flex-col items-center justify-center w-16 h-12 rounded-full bg-acc text-white shadow-lg shadow-primary/30 -translate-y-2">
+          <div className="flex flex-col items-center justify-center w-16 h-12 rounded-full bg-acc text-white shadow-lg shadow-acc/30 -translate-y-2">
             <FileText size={20} />
             <span className="text-[10px] mt-1 font-medium">{t('nav.new_report')}</span>
           </div>

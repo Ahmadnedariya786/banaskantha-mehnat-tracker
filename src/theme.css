@@ -1,34 +1,34 @@
 html[data-theme="outdoor"] {
-  --bg: 234 243 252;
-  --card: 255 255 255;
-  --text: 18 48 94;
-  --sub: 91 123 166;
-  --acc: 29 111 224;
-  --acc2: 56 189 248;
-  --brd: 21 60 130;
-  --inp: 255 255 255;
-  --danger: 239 68 68;
-  --shadow-color: 21 60 130;
-  --shadow-alpha: 0.08;
-  --inp-alpha: 0.7;
-  --grad-a: 37 99 235;
-  --grad-b: 56 189 248;
+  --bg: 255 248 231;
+  --card: 255 253 246;
+  --text: 30 47 115;
+  --sub: 107 122 168;
+  --acc: 36 59 143;
+  --acc2: 76 111 231;
+  --brd: 36 59 143;
+  --inp: 255 253 246;
+  --danger: 217 58 58;
+  --shadow-color: 36 59 143;
+  --shadow-alpha: 0.10;
+  --inp-alpha: 0.9;
+  --grad-a: 36 59 143;
+  --grad-b: 90 167 232;
 }
 html[data-theme="dark"] {
-  --bg: 11 18 32;
-  --card: 22 32 58;
-  --text: 255 255 255;
-  --sub: 148 163 184;
-  --acc: 59 130 246;
-  --acc2: 99 102 241;
-  --brd: 255 255 255;
-  --inp: 255 255 255;
-  --danger: 239 68 68;
+  --bg: 3 49 58;
+  --card: 8 58 66;
+  --text: 236 253 247;
+  --sub: 134 191 178;
+  --acc: 16 169 154;
+  --acc2: 143 255 224;
+  --brd: 143 255 224;
+  --inp: 8 58 66;
+  --danger: 248 113 113;
   --shadow-color: 0 0 0;
-  --shadow-alpha: 0.35;
-  --inp-alpha: 0.1;
-  --grad-a: 37 99 235;
-  --grad-b: 124 58 237;
+  --shadow-alpha: 0.40;
+  --inp-alpha: 1;
+  --grad-a: 14 116 144;
+  --grad-b: 143 255 224;
 }
 html[data-theme="premium"] {
   --bg: 23 18 56;
@@ -46,20 +46,25 @@ html[data-theme="premium"] {
   --grad-a: 236 72 153;
   --grad-b: 168 85 247;
 }
+
 html[data-theme="outdoor"] body {
-  background: linear-gradient(180deg,#EAF3FC,#D9E9F8);
+  background: linear-gradient(180deg,#FFF8E7,#F8E9C4);
+}
+
+html[data-theme="dark"] body {
+  background: linear-gradient(180deg,#052A31,#03313A);
 }
 
 /* ── Neumorphic tokens (gate screens only) ── */
 html[data-theme="outdoor"] {
-  --neu-bg: #E6EEF8;
-  --neu-light: rgba(255,255,255,0.95);
-  --neu-dark: rgba(148,170,197,0.55);
+  --neu-bg: #F7ECCF;
+  --neu-light: rgba(255,255,255,0.9);
+  --neu-dark: rgba(176,150,90,0.45);
 }
 html[data-theme="dark"] {
-  --neu-bg: #18222F;
+  --neu-bg: #06333B;
   --neu-light: rgba(255,255,255,0.07);
-  --neu-dark: rgba(0,0,0,0.65);
+  --neu-dark: rgba(0,0,0,0.6);
 }
 html[data-theme="premium"] {
   --neu-bg: #251732;

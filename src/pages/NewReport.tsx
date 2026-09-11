@@ -242,7 +242,7 @@ export const NewReport: React.FC = () => {
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
               className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
             >
-              <CheckCircle size={18} className="text-emerald-500 shrink-0" />
+              <CheckCircle size={18} className="text-acc2 shrink-0" />
               <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
             </motion.div>
           </div>

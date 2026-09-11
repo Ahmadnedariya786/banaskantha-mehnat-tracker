@@ -87,7 +87,7 @@ export const Dashboard: React.FC = () => {
           <div>
             <h3 className="font-gujarati text-sub font-medium mb-1 text-white/80">{t('stat.students_count')}</h3>
             <div className="text-5xl font-num font-bold text-white">{totalStudents.toLocaleString('en-IN')}</div>
-            <div className="flex items-center gap-1 text-emerald-400 text-sm mt-2 font-num">
+            <div className="flex items-center gap-1 text-acc2 text-sm mt-2 font-num">
               <TrendingUp size={16} /> +0% 
               <span className="font-gujarati text-white/70 ml-1">ગયા માસ કરતા</span>
             </div>
@@ -110,7 +110,7 @@ export const Dashboard: React.FC = () => {
               <GlassCard className="p-4 flex justify-center py-6 bg-card">
                 <ProgressRing 
                   progress={85} 
-                  color="#3b82f6" 
+                  color="rgb(var(--acc))" 
                   label={t('activity.namaz')} 
                   subLabel="85/100" 
                 />
@@ -118,7 +118,7 @@ export const Dashboard: React.FC = () => {
               <GlassCard className="p-4 flex justify-center py-6 bg-card">
                 <ProgressRing 
                   progress={60} 
-                  color="#f59e0b" 
+                  color="rgb(var(--acc2))" 
                   label={t('activity.mulaqat_percent')} 
                   subLabel="60%" 
                 />

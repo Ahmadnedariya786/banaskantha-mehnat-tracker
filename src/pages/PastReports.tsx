@@ -193,7 +193,7 @@ export const PastReports: React.FC = () => {
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
               className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
             >
-              <CheckCircle size={18} className="text-emerald-500 shrink-0" />
+              <CheckCircle size={18} className="text-acc2 shrink-0" />
               <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
             </motion.div>
           </div>
@@ -231,7 +231,7 @@ export const PastReports: React.FC = () => {
           <Plus size={18} />
           <span className="font-gujarati">{t('nav.new_report')}</span>
         </LiquidButton>
-        <LiquidButton variant="neutral" className="flex-1 flex flex-row items-center justify-center gap-2 whitespace-nowrap px-6 py-3.5 max-[380px]:text-sm text-acc border-emerald-500/30" onClick={handleDownloadAllExcel}>
+        <LiquidButton variant="neutral" className="flex-1 flex flex-row items-center justify-center gap-2 whitespace-nowrap px-6 py-3.5 max-[380px]:text-sm text-acc border-acc2/30" onClick={handleDownloadAllExcel}>
           <Download size={18} />
           <span className="font-gujarati">{t('past_reports.btn_all_excel' as any)}</span>
         </LiquidButton>

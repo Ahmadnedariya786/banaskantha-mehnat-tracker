@@ -66,7 +66,7 @@ export const Layout: React.FC = () => {
                     whileTap={{ scale: 0.95 }}
                     className={cn(
                       "w-14 h-14 rounded-full flex items-center justify-center shadow-lg ",
-                      isActive ? "bg-acc text-white shadow-lg shadow-primary/40" : "bg-card text-acc"
+                      isActive ? "bg-acc text-white shadow-lg shadow-acc/40" : "bg-card text-acc"
                     )}
                   >
                     <item.icon size={18} />

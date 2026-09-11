@@ -349,7 +349,7 @@ export const Admin: React.FC = () => {
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
               className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
             >
-              <CheckCircle size={18} className="text-emerald-500 shrink-0" />
+              <CheckCircle size={18} className="text-acc2 shrink-0" />
               <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
             </motion.div>
           </div>
@@ -364,7 +364,7 @@ export const Admin: React.FC = () => {
                 <Shield className="text-acc" />
                 {t('admin.dashboard_title' as any)}
               </h2>
-              <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 rounded-full text-xs font-gujarati font-medium whitespace-nowrap">
+              <span className="bg-acc2/10 text-acc2 border border-acc2/20 px-2 py-0.5 rounded-full text-xs font-gujarati font-medium whitespace-nowrap">
                 એડમિન લૉગિન ✅
               </span>
             </div>
@@ -454,7 +454,7 @@ export const Admin: React.FC = () => {
                 <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="w-[92%] max-w-sm rounded-2xl bg-card p-5 text-center shadow-2xl border border-brd/10">
                   {generatedCode ? (
                     <div className="space-y-6">
-                      <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-16 h-16 bg-acc2/10 text-acc2 rounded-full flex items-center justify-center mx-auto">
                         <CheckCircle size={32} />
                       </div>
                       <div>

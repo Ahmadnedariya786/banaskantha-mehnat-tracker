@@ -116,7 +116,7 @@ export const Settings: React.FC = () => {
                 key={tVal}
                 onClick={() => setTheme(tVal)}
                 className={`px-6 py-2.5 font-gujarati text-sm font-medium rounded-full  shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] ${
-                  theme === tVal ? 'bg-acc text-white shadow-md' : 'bg-card text-sub hover:bg-black/5'
+                  theme === tVal ? 'bg-acc text-white shadow-md' : 'bg-card text-sub hover:bg-txt/5'
                 }`}
               >
                 {tVal === 'outdoor' ? 'આઉટડોર' : tVal === 'dark' ? 'ડાર્ક' : 'પ્રીમિયમ'}

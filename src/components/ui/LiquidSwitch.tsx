@@ -35,7 +35,7 @@ export const LiquidSwitch: React.FC<LiquidSwitchProps> = ({ checked, onChange, c
       
       {/* Liquid Fill Overlay on track */}
       {checked && (
-        <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-t from-blue-400/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-t from-acc/50 to-transparent pointer-events-none" />
       )}
     </button>
   );
