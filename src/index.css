@@ -82,3 +82,50 @@
   from { opacity: 1; }
   to { opacity: 0; pointer-events: none; visibility: hidden; }
 }
+
+/* ── Neumorphic gate-screen utilities ── */
+@layer components {
+  .neu-raised {
+    background: var(--neu-bg);
+    box-shadow:
+      9px 9px 18px var(--neu-dark),
+      -9px -9px 18px var(--neu-light);
+  }
+  .neu-inset {
+    background: var(--neu-bg);
+    box-shadow:
+      inset 6px 6px 12px var(--neu-dark),
+      inset -6px -6px 12px var(--neu-light);
+  }
+}
+
+/* Tactile press — plain CSS, not Tailwind variant */
+.neu-btn:active {
+  box-shadow:
+    inset 6px 6px 12px var(--neu-dark),
+    inset -6px -6px 12px var(--neu-light);
+}
+
+/* ── Keyframes ── */
+@keyframes neu-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+@keyframes neu-check-in {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  80%  { transform: scale(0.92); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.neu-shake    { animation: neu-shake 0.3s ease-in-out; }
+.neu-check-in { animation: neu-check-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Instant-swap for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .neu-shake    { animation: none !important; }
+  .neu-check-in { animation: none !important; transform: scale(1); opacity: 1; }
+}
+

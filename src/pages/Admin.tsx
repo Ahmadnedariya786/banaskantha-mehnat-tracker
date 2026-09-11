@@ -15,6 +15,9 @@ export const Admin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [isFirstRun, setIsFirstRun] = useState(false);
+  const [shakeInput, setShakeInput] = useState(false);
   
   const [activeScreen, setActiveScreen] = useState<'main' | 'users' | 'logs'>('main');
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -43,20 +46,31 @@ export const Admin: React.FC = () => {
       const code = password.trim();
       const initSuccess = await supabaseService.setAdminCode(null, code);
       if (initSuccess) {
-        setSession(code, 'admin');
-        showNotification('એડમિન પાસવર્ડ સેટ થયો ✅');
+        // First-run: admin code just set
+        setIsFirstRun(true);
+        setLoginSuccess(true);
+        setTimeout(() => {
+          setSession(code, 'admin');
+        }, 800);
       } else {
         const role = await supabaseService.loginCode(code);
         if (role === 'admin') {
-          setSession(code, role);
+          setLoginSuccess(true);
           setError(false);
+          setTimeout(() => {
+            setSession(code, role);
+          }, 800);
         } else {
           setError(true);
+          setShakeInput(true);
           setPassword('');
+          showNotification('અમાન્ય પાસવર્ડ ❌');
         }
       }
     } catch (err) {
       setError(true);
+      setShakeInput(true);
+      showNotification('ભૂલ આવી ❌');
     }
     setIsLoading(false);
   };
@@ -70,6 +84,15 @@ export const Admin: React.FC = () => {
       console.error(err);
     }
   };
+
+  // Probe first-run status on mount
+  useEffect(() => {
+    let mounted = true;
+    supabaseService.getSetting('admin_code').then((val) => {
+      if (mounted) setIsFirstRun(!val);
+    }).catch(() => {/* ignore */});
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -88,6 +111,7 @@ export const Admin: React.FC = () => {
     checkAuth();
     return () => { mounted = false; };
   }, [sessionCode, sessionRole, setSession]);
+
 
   useEffect(() => {
     if (activeScreen === 'users' && sessionRole === 'admin') {
@@ -198,47 +222,121 @@ export const Admin: React.FC = () => {
 
   if (!sessionRole) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-6">
-        <GlassCard className="w-full max-w-sm p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="w-16 h-16 bg-acc/10 rounded-full flex items-center justify-center mx-auto text-acc mb-4">
-              <Lock size={32} />
+      <div className="min-h-[80vh] flex flex-col items-center justify-center">
+        {/* Toast */}
+        <AnimatePresence>
+          {showToast && (
+            <div className="fixed inset-x-4 bottom-24 z-[80] flex justify-center pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
+              >
+                <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
+              </motion.div>
             </div>
-            <h2 className="text-2xl font-bold font-gujarati">એડમિન લૉગિન</h2>
-            <p className="text-sm font-gujarati text-sub">પ્રથમ વખત લોગિન કરતા હોવ તો નવો પાસવર્ડ સેટ કરો, અન્યથા તમારો એડમિન કોડ દાખલ કરો.</p>
-          </div>
-          
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-3">
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(false); }}
-                placeholder="એડમિન પાસવર્ડ"
-                className="w-full h-12 px-4 rounded-xl glass-panel bg-card outline-none focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] transition-shadow text-center font-num tracking-widest text-txt"
-              />
-              <AnimatePresence>
-                {error && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="text-acc text-sm font-gujarati text-center mt-2"
+          )}
+        </AnimatePresence>
+
+        {/* Embossed gate — circle on desktop, rounded card on mobile */}
+        <div
+          className={[
+            'neu-raised relative flex flex-col items-center justify-center p-8',
+            /* desktop: circular; mobile: pill card */
+            'w-[92%] rounded-[2rem]',
+            'sm:w-[340px] sm:h-[340px] sm:rounded-full',
+          ].join(' ')}
+          style={{ minHeight: '280px' }}
+        >
+          <AnimatePresence mode="wait">
+            {loginSuccess ? (
+              /* ── SUCCESS STATE ── */
+              <motion.div
+                key="success"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center gap-4"
+              >
+                <div
+                  className="w-20 h-20 rounded-full neu-raised flex items-center justify-center neu-check-in"
+                  style={{ color: 'rgb(16 185 129)' }}
+                >
+                  <CheckCircle size={40} />
+                </div>
+                <p className="font-gujarati font-semibold text-txt text-center text-sm"
+                   style={{ textShadow: '1px 1px 2px var(--neu-dark), -1px -1px 1px var(--neu-light)' }}>
+                  સ્વાગત છે! લૉગિન સફળ
+                </p>
+              </motion.div>
+            ) : (
+              /* ── LOGIN / FIRST-RUN FORM ── */
+              <motion.div
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.25 } }}
+                className="w-full flex flex-col items-center gap-5"
+              >
+                {/* Lock icon bubble */}
+                <div className="w-12 h-12 rounded-full neu-raised flex items-center justify-center text-acc">
+                  <Lock size={22} />
+                </div>
+
+                {/* Title — first-run vs login */}
+                <div className="text-center">
+                  <h2
+                    className="text-lg font-bold font-gujarati text-txt leading-snug"
+                    style={{ textShadow: '1px 1px 2px var(--neu-dark), -1px -1px 1px var(--neu-light)' }}
                   >
-                    {t('admin.error_incorrect' as any)}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            
-            <LiquidButton variant="primary" className="w-full" type="submit" disabled={isLoading}>
-              <span className="font-gujarati">{t('admin.btn_login' as any)}</span>
-            </LiquidButton>
-          </form>
-        </GlassCard>
+                    {isFirstRun ? 'એડમિન પાસવર્ડ સેટ કરો' : 'એડમિન લૉગિન'}
+                  </h2>
+                  {isFirstRun && (
+                    <p className="text-xs font-gujarati text-sub mt-1 leading-relaxed">
+                      પ્રથમ વખત — નવો પાસવર્ડ બનાવો
+                    </p>
+                  )}
+                </div>
+
+                {/* Form */}
+                <form
+                  onSubmit={handleLogin}
+                  className={`w-full space-y-3 ${shakeInput ? 'neu-shake' : ''}`}
+                  onAnimationEnd={() => setShakeInput(false)}
+                >
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setError(false); }}
+                    placeholder="•••••••••"
+                    className={[
+                      'w-full neu-inset rounded-full px-5 py-3.5 outline-none',
+                      'text-txt text-center font-num tracking-widest placeholder:tracking-normal placeholder:text-sub/50',
+                      'focus:ring-2 focus:ring-acc/40 transition-shadow text-sm',
+                      error ? 'ring-2 ring-danger/60' : '',
+                    ].join(' ')}
+                    disabled={isLoading}
+                    autoFocus
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={isLoading || !password.trim()}
+                    className="neu-btn neu-raised w-full rounded-full py-3.5 font-semibold font-gujarati text-acc text-sm transition-shadow disabled:opacity-50"
+                  >
+                    {isLoading ? '...' : isFirstRun ? 'સેટ કરો' : 'લૉગિન'}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     );
   }
+
+
 
   return (
     <div className="space-y-6 pb-12 relative">

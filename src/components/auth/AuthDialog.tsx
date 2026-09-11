@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Lock, Loader2 } from 'lucide-react';
+import { X, Lock, Loader2, CheckCircle } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { supabaseService } from '../../services/supabaseService';
-import { GlassCard } from '../ui/GlassCard';
-import { LiquidButton } from '../ui/LiquidButton';
 
 export const AuthDialog: React.FC = () => {
   const { authDialogOpen, closeAuthDialog, setSession, authPendingAction } = useAppStore();
@@ -12,6 +10,7 @@ export const AuthDialog: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [unlockSuccess, setUnlockSuccess] = useState(false);
 
   const showNotification = (msg: string) => {
     setToastMessage(msg);
@@ -27,11 +26,15 @@ export const AuthDialog: React.FC = () => {
       const role = await supabaseService.loginCode(code.trim().toUpperCase());
       if (role) {
         setSession(code.trim().toUpperCase(), role);
-        showNotification('અનલૉક સફળ ✅');
-        closeAuthDialog();
-        if (authPendingAction) {
-          authPendingAction();
-        }
+        setUnlockSuccess(true);
+        // Quick check pop → close after 600 ms
+        setTimeout(() => {
+          setUnlockSuccess(false);
+          closeAuthDialog();
+          if (authPendingAction) {
+            authPendingAction();
+          }
+        }, 600);
       } else {
         showNotification('અમાન્ય કોડ ❌');
       }
@@ -44,6 +47,7 @@ export const AuthDialog: React.FC = () => {
 
   return (
     <AnimatePresence>
+      {/* Toast */}
       {showToast && (
         <div className="fixed inset-x-4 bottom-24 z-[100] flex justify-center pointer-events-none">
           <motion.div
@@ -56,8 +60,10 @@ export const AuthDialog: React.FC = () => {
           </motion.div>
         </div>
       )}
+
       {authDialogOpen && (
         <>
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -65,50 +71,95 @@ export const AuthDialog: React.FC = () => {
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70]"
             onClick={closeAuthDialog}
           />
+
+          {/* Centered dialog */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none"
           >
-            <GlassCard className="w-[92%] max-w-sm rounded-2xl bg-card p-5 relative pointer-events-auto">
-              <button 
+            {/* ── Neumorphic panel ── */}
+            <div className="w-[92%] max-w-sm neu-raised rounded-3xl p-6 relative pointer-events-auto">
+              <button
                 onClick={closeAuthDialog}
                 className="absolute top-4 right-4 text-sub hover:text-txt transition-colors"
               >
                 <X size={20} />
               </button>
-              
-              <div className="flex flex-col items-center mb-6">
-                <div className="w-12 h-12 rounded-full bg-acc/10 text-acc flex items-center justify-center mb-4">
-                  <Lock size={24} />
-                </div>
-                <h2 className="text-xl font-bold font-gujarati text-txt text-center">કોડ દાખલ કરો</h2>
-                <p className="text-sm text-sub mt-2 text-center font-gujarati">
-                  આ ક્રિયા માટે ઍક્સેસ કોડ જરૂરી છે.
-                </p>
-              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="MT-XXXX-XXXX"
-                  className="w-full bg-card rounded-md px-4 py-3 outline-none shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] font-num text-center focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] transition-shadow text-txt tracking-widest placeholder:tracking-normal uppercase"
-                  disabled={loading}
-                  autoFocus
-                />
-                
-                <LiquidButton 
-                  type="submit"
-                  className="w-full mt-2" 
-                  disabled={!code.trim() || loading}
-                >
-                  {loading ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'અનલૉક કરો'}
-                </LiquidButton>
-              </form>
-            </GlassCard>
+              <AnimatePresence mode="wait">
+                {unlockSuccess ? (
+                  /* ── Quick success check pop ── */
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col items-center gap-4 py-6"
+                  >
+                    <div
+                      className="w-16 h-16 rounded-full neu-raised flex items-center justify-center neu-check-in"
+                      style={{ color: 'rgb(16 185 129)' }}
+                    >
+                      <CheckCircle size={32} />
+                    </div>
+                    <p className="font-gujarati font-semibold text-txt text-sm">
+                      અનલૉક સફળ ✅
+                    </p>
+                  </motion.div>
+                ) : (
+                  /* ── Code entry form ── */
+                  <motion.div
+                    key="form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                  >
+                    <div className="flex flex-col items-center mb-6">
+                      {/* Lock icon bubble — raised circle */}
+                      <div className="w-12 h-12 rounded-full neu-raised text-acc flex items-center justify-center mb-4">
+                        <Lock size={22} />
+                      </div>
+                      <h2
+                        className="text-xl font-bold font-gujarati text-txt text-center"
+                        style={{ textShadow: '1px 1px 2px var(--neu-dark), -1px -1px 1px var(--neu-light)' }}
+                      >
+                        કોડ દાખલ કરો
+                      </h2>
+                      <p className="text-sm text-sub mt-2 text-center font-gujarati">
+                        આ ક્રિયા માટે ઍક્સેસ કોડ જરૂરી છે.
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      {/* Neu-inset code input */}
+                      <input
+                        type="text"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.toUpperCase())}
+                        placeholder="MT-XXXX-XXXX"
+                        className="w-full neu-inset rounded-full px-5 py-3.5 outline-none font-num text-center text-txt tracking-widest placeholder:tracking-normal placeholder:text-sub/50 uppercase focus:ring-2 focus:ring-acc/40 transition-shadow text-sm"
+                        disabled={loading}
+                        autoFocus
+                      />
+
+                      {/* Unlock button — neu-btn for plain-CSS :active tactile press */}
+                      <button
+                        type="submit"
+                        disabled={!code.trim() || loading}
+                        className="neu-btn neu-raised w-full rounded-full py-3.5 font-semibold font-gujarati text-acc text-sm transition-shadow disabled:opacity-50"
+                      >
+                        {loading
+                          ? <Loader2 className="animate-spin mx-auto" size={20} />
+                          : 'અનલૉક કરો'
+                        }
+                      </button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
         </>
       )}

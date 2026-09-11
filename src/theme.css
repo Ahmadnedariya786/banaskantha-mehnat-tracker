@@ -49,3 +49,20 @@ html[data-theme="premium"] {
 html[data-theme="outdoor"] body {
   background: linear-gradient(180deg,#EAF3FC,#D9E9F8);
 }
+
+/* ── Neumorphic tokens (gate screens only) ── */
+html[data-theme="outdoor"] {
+  --neu-bg: #E6EEF8;
+  --neu-light: rgba(255,255,255,0.95);
+  --neu-dark: rgba(148,170,197,0.55);
+}
+html[data-theme="dark"] {
+  --neu-bg: #18222F;
+  --neu-light: rgba(255,255,255,0.07);
+  --neu-dark: rgba(0,0,0,0.65);
+}
+html[data-theme="premium"] {
+  --neu-bg: #251732;
+  --neu-light: rgba(255,255,255,0.08);
+  --neu-dark: rgba(0,0,0,0.60);
+}
