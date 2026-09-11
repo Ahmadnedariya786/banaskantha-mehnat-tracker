@@ -11,7 +11,7 @@ export default function ThemeSwitcher() {
         className={`rounded-full p-2 ${theme === 'outdoor' ? 'bg-acc text-white' : 'text-sub'}`}>
         <Sun size={18} />
       </button>
-      <button type="button" aria-label="ડાર્ક"
+      <button type="button" aria-label="ગ્રેફાઇટ"
         onClick={() => setTheme('dark')}
         className={`rounded-full p-2 ${theme === 'dark' ? 'bg-acc text-white' : 'text-sub'}`}>
         <Moon size={18} />

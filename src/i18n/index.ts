@@ -89,7 +89,7 @@ const dictionary = {
   // Settings
   'settings.title': 'સેટિંગ્સ',
   'settings.theme': 'થીમ',
-  'settings.theme_desc': 'આઉટડોર / ડાર્ક / પ્રીમિયમ',
+  'settings.theme_desc': 'આઉટડોર / ગ્રેફાઇટ / પ્રીમિયમ',
   'settings.reminder': 'દૈનિક રિમાઇન્ડર',
   'settings.language': 'ભાષા',
   'settings.data_backup': 'ડેટા બેકઅપ',

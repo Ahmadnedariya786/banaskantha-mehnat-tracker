@@ -119,7 +119,7 @@ export const Settings: React.FC = () => {
                   theme === tVal ? 'bg-acc text-white shadow-md' : 'bg-card text-sub hover:bg-txt/5'
                 }`}
               >
-                {tVal === 'outdoor' ? 'આઉટડોર' : tVal === 'dark' ? 'ડાર્ક' : 'પ્રીમિયમ'}
+                {tVal === 'outdoor' ? 'આઉટડોર' : tVal === 'dark' ? 'ગ્રેફાઇટ' : 'પ્રીમિયમ'}
               </button>
             ))}
           </div>
