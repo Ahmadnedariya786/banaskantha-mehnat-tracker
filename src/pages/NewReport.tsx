@@ -198,27 +198,33 @@ export const NewReport: React.FC = () => {
     }));
   };
 
-  const handleAddHalqa = () => {
-    if (newHalqaName.trim()) {
-      addCustomHalqa(newHalqaName.trim());
+  const handleAddHalqa = async () => {
+    if (!newHalqaName.trim()) return;
+    try {
+      await addCustomHalqa(newHalqaName.trim());
+      await useAppStore.getState().loadData(); // Refetch halqas as requested
       setHalqa(newHalqaName.trim());
+      setNewHalqaName('');
+      setShowHalqaDialog(false);
+      showNotification('હલકો ઉમેરાયો ✅');
+    } catch (err: any) {
+      showNotification('ભૂલ આવી: ' + (err.message || 'અજ્ઞાત ભૂલ'));
     }
-    setNewHalqaName('');
-    setShowHalqaDialog(false);
   };
 
-  const confirmDeleteHalqa = () => {
-    if (halqaToDelete) {
-      const targetHalqa = halqas.find(h => h.name === halqaToDelete);
-      const uuid = targetHalqa?.id || halqaToDelete;
-      removeCustomHalqa(uuid).then(() => {
-        showNotification('હલકો ડિલીટ થયો ✅');
-        if (halqa === halqaToDelete) setHalqa('');
-      }).catch((err: any) => {
-        showNotification('ભૂલ આવી! કાઢી શકાયો નથી ❌: ' + err.message);
-      });
+  const confirmDeleteHalqa = async () => {
+    if (!halqaToDelete) return;
+    const targetHalqa = halqas.find(h => h.name === halqaToDelete);
+    const uuid = targetHalqa?.id || halqaToDelete;
+    try {
+      await removeCustomHalqa(uuid);
+      await useAppStore.getState().loadData(); // Refetch halqas
+      showNotification('હલકો ડિલીટ થયો ✅');
+      if (halqa === halqaToDelete) setHalqa('');
+      setHalqaToDelete(null);
+    } catch (err: any) {
+      showNotification('ભૂલ આવી: ' + (err.message || 'અજ્ઞાત ભૂલ'));
     }
-    setHalqaToDelete(null);
   };
 
   const ALL_HALQAS = [...DEFAULT_HALQAS, ...customHalqas];

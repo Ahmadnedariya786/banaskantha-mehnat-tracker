@@ -12,6 +12,12 @@ export const AuthDialog: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [unlockSuccess, setUnlockSuccess] = useState(false);
 
+  React.useEffect(() => {
+    const handleToast = (e: any) => showNotification(e.detail);
+    window.addEventListener('app-toast', handleToast);
+    return () => window.removeEventListener('app-toast', handleToast);
+  }, []);
+
   const showNotification = (msg: string) => {
     setToastMessage(msg);
     setShowToast(true);

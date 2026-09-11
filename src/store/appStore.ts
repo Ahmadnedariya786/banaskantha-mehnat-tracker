@@ -45,19 +45,39 @@ interface AppState {
   customHalqas: string[]
 }
 
+const getInitialSession = () => {
+  try {
+    const raw = localStorage.getItem('mt_session');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { code: null, role: null };
+};
+
+const initialSession = getInitialSession();
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
-      hasCompletedOnboarding: false,
-      setHasCompletedOnboarding: (val) => set({ hasCompletedOnboarding: val }),
+      hasCompletedOnboarding: localStorage.getItem('mt_onboarded') === '1',
+      setHasCompletedOnboarding: (val) => {
+        localStorage.setItem('mt_onboarded', val ? '1' : '0');
+        set({ hasCompletedOnboarding: val });
+      },
       
       draftReport: null,
       setDraftReport: (draft) => set({ draftReport: draft }),
       clearDraft: () => set({ draftReport: null }),
       
-      sessionCode: null,
-      sessionRole: null,
-      setSession: (code, role) => set({ sessionCode: code, sessionRole: role }),
+      sessionCode: initialSession.code,
+      sessionRole: initialSession.role,
+      setSession: (code, role) => {
+        if (code && role) {
+          localStorage.setItem('mt_session', JSON.stringify({ code, role }));
+        } else {
+          localStorage.removeItem('mt_session');
+        }
+        set({ sessionCode: code, sessionRole: role });
+      },
       
       authDialogOpen: false,
       authPendingAction: null,
@@ -83,10 +103,15 @@ export const useAppStore = create<AppState>()(
           if (code) {
             try {
               const role = await supabaseService.loginCode(code);
-              if (!role) get().setSession(null, null);
-              else get().setSession(code, role);
+              if (!role) {
+                get().setSession(null, null);
+                window.dispatchEvent(new CustomEvent('app-toast', { detail: 'કોડ રદ થયેલ છે — ફરી દાખલ કરો' }));
+              } else {
+                get().setSession(code, role);
+              }
             } catch (err) {
               get().setSession(null, null);
+              window.dispatchEvent(new CustomEvent('app-toast', { detail: 'કોડ રદ થયેલ છે — ફરી દાખલ કરો' }));
             }
           }
           const [reports, halqas] = await Promise.all([
@@ -178,11 +203,9 @@ export const useAppStore = create<AppState>()(
     {
       name: 'app-storage',
       partialize: (state) => ({
-        hasCompletedOnboarding: state.hasCompletedOnboarding,
         draftReport: state.draftReport,
-        sessionCode: state.sessionCode,
-        sessionRole: state.sessionRole,
       })
     }
   )
 )
+

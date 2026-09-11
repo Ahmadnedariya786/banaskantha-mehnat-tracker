@@ -6,11 +6,9 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidSwitch } from '../components/ui/LiquidSwitch';
 import { Bell, Moon, Globe, Shield, Info, Clock } from 'lucide-react';
 import { useThemeStore, type Theme } from '../store/themeStore';
-import { supabaseService } from '../services/supabaseService';
 import { useAppStore } from '../store/appStore';
 
 export const Settings: React.FC = () => {
-  const { sessionCode, requireAuth } = useAppStore();
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderTime, setReminderTime] = useState('20:00');
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -30,46 +28,28 @@ export const Settings: React.FC = () => {
     console.log('SETTINGS_MOUNT');
   }, []);
 
-  // Load from DB on mount
+  // Load from local storage on mount
   useEffect(() => {
-    supabaseService.getSetting('reminderTime').then(val => {
-      if (val) setReminderTime(val);
-    }).catch(console.error);
+    const time = localStorage.getItem('reminderTime');
+    if (time) setReminderTime(time);
 
-    supabaseService.getSetting('reminderEnabled').then(val => {
-      if (val !== null) setReminderEnabled(val === 'true');
-    }).catch(console.error);
+    const enabled = localStorage.getItem('reminderEnabled');
+    if (enabled !== null) setReminderEnabled(enabled === 'true');
   }, []);
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = e.target.value;
     setReminderTime(newTime);
-    requireAuth(async () => {
-      try {
-        if (!sessionCode) return;
-        await supabaseService.setSetting('reminderTime', newTime, sessionCode);
-        showNotification('સેટિંગ સેવ થયું ✅');
-      } catch (err) {
-        console.error(err);
-        showNotification('એડમિન ઍક્સેસ જરૂરી છે ❌');
-      }
-    });
+    localStorage.setItem('reminderTime', newTime);
+    showNotification('સેટિંગ સેવ થયું ✅');
   };
 
   const handleEnabledChange = (enabled: boolean) => {
     setReminderEnabled(enabled);
-    requireAuth(async () => {
-      try {
-        if (!sessionCode) return;
-        await supabaseService.setSetting('reminderEnabled', enabled ? 'true' : 'false', sessionCode);
-        showNotification('સેટિંગ સેવ થયું ✅');
-      } catch (err) {
-        console.error(err);
-        showNotification('એડમિન ઍક્સેસ જરૂરી છે ❌');
-        setReminderEnabled(!enabled); // revert
-      }
-    });
+    localStorage.setItem('reminderEnabled', enabled ? 'true' : 'false');
+    showNotification('સેટિંગ સેવ થયું ✅');
   };
+
 
   return (
     <div className="space-y-6 pb-12">

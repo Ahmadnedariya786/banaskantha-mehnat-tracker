@@ -357,7 +357,7 @@ export const Admin: React.FC = () => {
       </AnimatePresence>
 
       {activeScreen === 'main' && (
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
+        <div className="space-y-6">
           <header className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold font-gujarati flex items-center gap-2">
@@ -389,11 +389,11 @@ export const Admin: React.FC = () => {
               <span className="font-gujarati font-medium text-sm">{t('settings.data_backup' as any)}</span>
             </GlassCard>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {activeScreen === 'users' && (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 relative">
+        <div className="space-y-6 relative">
           <header className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button onClick={() => setActiveScreen('main')} className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-sub">
@@ -503,11 +503,11 @@ export const Admin: React.FC = () => {
               </div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       )}
 
       {activeScreen === 'logs' && (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+        <div className="space-y-6">
           <header className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button onClick={() => setActiveScreen('main')} className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-sub">
@@ -540,7 +540,7 @@ export const Admin: React.FC = () => {
               )}
             </div>
           </GlassCard>
-        </motion.div>
+        </div>
       )}
     </div>
   );
