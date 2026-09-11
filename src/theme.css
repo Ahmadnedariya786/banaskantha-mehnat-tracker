@@ -15,20 +15,20 @@ html[data-theme="outdoor"] {
   --grad-b: 90 167 232;
 }
 html[data-theme="dark"] {
-  --bg: 3 49 58;
-  --card: 8 58 66;
-  --text: 236 253 247;
-  --sub: 134 191 178;
-  --acc: 16 169 154;
-  --acc2: 143 255 224;
-  --brd: 143 255 224;
-  --inp: 8 58 66;
+  --bg: 31 35 41;
+  --card: 38 43 51;
+  --text: 243 244 246;
+  --sub: 156 163 175;
+  --acc: 101 163 13;
+  --acc2: 182 255 46;
+  --brd: 182 255 46;
+  --inp: 38 43 51;
   --danger: 248 113 113;
   --shadow-color: 0 0 0;
   --shadow-alpha: 0.40;
   --inp-alpha: 1;
-  --grad-a: 14 116 144;
-  --grad-b: 143 255 224;
+  --grad-a: 101 163 13;
+  --grad-b: 182 255 46;
 }
 html[data-theme="premium"] {
   --bg: 23 18 56;
@@ -52,7 +52,7 @@ html[data-theme="outdoor"] body {
 }
 
 html[data-theme="dark"] body {
-  background: linear-gradient(180deg,#052A31,#03313A);
+  background: linear-gradient(180deg,#262B33,#1F2329);
 }
 
 /* ── Neumorphic tokens (gate screens only) ── */
@@ -62,9 +62,9 @@ html[data-theme="outdoor"] {
   --neu-dark: rgba(176,150,90,0.45);
 }
 html[data-theme="dark"] {
-  --neu-bg: #06333B;
-  --neu-light: rgba(255,255,255,0.07);
-  --neu-dark: rgba(0,0,0,0.6);
+  --neu-bg: #23272E;
+  --neu-light: rgba(255,255,255,0.06);
+  --neu-dark: rgba(0,0,0,0.65);
 }
 html[data-theme="premium"] {
   --neu-bg: #251732;
