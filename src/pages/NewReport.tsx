@@ -7,7 +7,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { LiquidButton } from '../components/ui/LiquidButton';
 import { Calendar, Save, Trash2, Download, Share2, CheckCircle, Plus, X, Copy, ListChecks, MapPin, Lock } from 'lucide-react';
 import { cn, formatDate, localTodayIso } from '../lib/utils';
-import { isDuplicateReportError } from '../services/supabaseService';
+import { isDuplicateReportError, mapSupabaseError } from '../services/supabaseService';
 
 // Constants
 const DEFAULT_HALQAS = ['પાલનપુર', 'ડીસા', 'ધાનેરા', 'થરાદ'];
@@ -43,6 +43,7 @@ export const NewReport: React.FC = () => {
   const [showHalqaDialog, setShowHalqaDialog] = useState(false);
   const [newHalqaName, setNewHalqaName] = useState('');
   const [halqaToDelete, setHalqaToDelete] = useState<string | null>(null);
+  const [isAddingHalqa, setIsAddingHalqa] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -199,7 +200,8 @@ export const NewReport: React.FC = () => {
   };
 
   const handleAddHalqa = async () => {
-    if (!newHalqaName.trim()) return;
+    if (!newHalqaName.trim() || isAddingHalqa) return;
+    setIsAddingHalqa(true);
     try {
       await addCustomHalqa(newHalqaName.trim());
       await useAppStore.getState().loadData(); // Refetch halqas as requested
@@ -208,7 +210,18 @@ export const NewReport: React.FC = () => {
       setShowHalqaDialog(false);
       showNotification('હલકો ઉમેરાયો ✅');
     } catch (err: any) {
-      showNotification('ભૂલ આવી: ' + (err.message || 'અજ્ઞાત ભૂલ'));
+      const errorMsg = mapSupabaseError(err);
+      if (errorMsg === 'આ નામનો હલકો પહેલેથી છે ✅') {
+        await useAppStore.getState().loadData();
+        setHalqa(newHalqaName.trim());
+        setNewHalqaName('');
+        setShowHalqaDialog(false);
+        showNotification(errorMsg);
+      } else {
+        showNotification(errorMsg);
+      }
+    } finally {
+      setIsAddingHalqa(false);
     }
   };
 
@@ -271,11 +284,13 @@ export const NewReport: React.FC = () => {
                   className="w-full bg-card rounded-md px-4 py-3 outline-none shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] font-gujarati focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] transition-shadow text-txt"
                 />
                 <div className="flex gap-3 pt-2">
-                  <LiquidButton variant="neutral" className="flex-1" onClick={() => setShowHalqaDialog(false)}>
+                  <LiquidButton variant="neutral" className="flex-1" onClick={() => setShowHalqaDialog(false)} disabled={isAddingHalqa}>
                     {t('action.cancel' as any)}
                   </LiquidButton>
-                  <LiquidButton variant="primary" className="flex-1" onClick={handleAddHalqa}>
-                    + ઉમેરો
+                  <LiquidButton variant="primary" className="flex-1 flex items-center justify-center gap-2" onClick={handleAddHalqa} disabled={isAddingHalqa}>
+                    {isAddingHalqa ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : '+ ઉમેરો'}
                   </LiquidButton>
                 </div>
               </div>

@@ -1,72 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { t } from '../i18n';
 import { GlassCard } from '../components/ui/GlassCard';
-import { LiquidSwitch } from '../components/ui/LiquidSwitch';
-import { Bell, Moon, Globe, Shield, Info, Clock } from 'lucide-react';
+import { Moon, Globe, Shield, Info } from 'lucide-react';
 import { useThemeStore, type Theme } from '../store/themeStore';
 import { useAppStore } from '../store/appStore';
 
 export const Settings: React.FC = () => {
-  const [reminderEnabled, setReminderEnabled] = useState(true);
-  const [reminderTime, setReminderTime] = useState('20:00');
-  const [showTimePicker, setShowTimePicker] = useState(false);
   const { theme, setTheme } = useThemeStore();
   const navigate = useNavigate();
-  
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
-
-  const showNotification = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
 
   useEffect(() => {
     console.log('SETTINGS_MOUNT');
   }, []);
 
-  // Load from local storage on mount
-  useEffect(() => {
-    const time = localStorage.getItem('reminderTime');
-    if (time) setReminderTime(time);
-
-    const enabled = localStorage.getItem('reminderEnabled');
-    if (enabled !== null) setReminderEnabled(enabled === 'true');
-  }, []);
-
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTime = e.target.value;
-    setReminderTime(newTime);
-    localStorage.setItem('reminderTime', newTime);
-    showNotification('સેટિંગ સેવ થયું ✅');
-  };
-
-  const handleEnabledChange = (enabled: boolean) => {
-    setReminderEnabled(enabled);
-    localStorage.setItem('reminderEnabled', enabled ? 'true' : 'false');
-    showNotification('સેટિંગ સેવ થયું ✅');
-  };
-
-
   return (
     <div className="space-y-6 pb-12">
-      <AnimatePresence>
-        {showToast && (
-          <div className="fixed inset-x-4 bottom-24 z-[80] flex justify-center pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="w-full max-w-md rounded-2xl bg-card/95 backdrop-blur px-4 py-3 flex items-center gap-2 shadow-lg border border-brd/10"
-            >
-              <span className="flex-1 text-sm text-txt font-gujarati font-medium">{toastMessage}</span>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
       <header className="flex justify-between items-center">
         <h2 className="text-2xl font-bold font-gujarati">{t('settings.title' as any)}</h2>
         <div className="text-xs font-gujarati bg-card px-3 py-1.5 rounded-full shadow-sm text-sub flex items-center gap-1.5">
@@ -90,12 +39,12 @@ export const Settings: React.FC = () => {
               <div className="text-xs text-sub font-gujarati mt-0.5">{t('settings.theme_desc' as any)}</div>
             </div>
           </div>
-          <div className="inline-flex gap-2">
+          <div className="grid grid-cols-3 gap-2 w-full">
             {(['outdoor', 'dark', 'premium'] as Theme[]).map((tVal) => (
               <button
                 key={tVal}
                 onClick={() => setTheme(tVal)}
-                className={`px-6 py-2.5 font-gujarati text-sm font-medium rounded-full  shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] ${
+                className={`px-3 py-2 font-gujarati text-sm font-medium rounded-full shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] ${
                   theme === tVal ? 'bg-acc text-white shadow-md' : 'bg-card text-sub hover:bg-txt/5'
                 }`}
               >
@@ -111,50 +60,6 @@ export const Settings: React.FC = () => {
             🔑
           </div>
           <div className="font-gujarati font-medium">ટીમ કોડ દાખલ કરો / બદલો</div>
-        </GlassCard>
-
-        {/* Reminder Settings */}
-        <GlassCard className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-acc/10 flex items-center justify-center text-acc">
-                <Bell size={20} />
-              </div>
-              <div>
-                <div className="font-gujarati font-medium">{t('settings.reminder' as any)}</div>
-                {reminderEnabled && (
-                  <button 
-                    onClick={() => setShowTimePicker(!showTimePicker)}
-                    className="text-xs text-acc font-num flex items-center gap-1 mt-0.5 hover:underline"
-                  >
-                    <Clock size={12} /> {reminderTime}
-                  </button>
-                )}
-              </div>
-            </div>
-            <LiquidSwitch checked={reminderEnabled} onChange={handleEnabledChange} />
-          </div>
-
-          <AnimatePresence>
-            {reminderEnabled && showTimePicker && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="pt-4 border-t border-brd/10 flex justify-between items-center">
-                  <span className="text-sm text-sub font-gujarati">સમય પસંદ કરો</span>
-                  <input
-                    type="time"
-                    value={reminderTime}
-                    onChange={handleTimeChange}
-                    className="bg-card rounded-md px-3 py-2 outline-none shadow-[inset_0_0_0_1px_rgb(var(--brd)/0.15)] font-num focus:shadow-[inset_0_0_0_2px_rgb(var(--acc))] transition-shadow text-txt"
-                  />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </GlassCard>
 
         {/* Language Settings (Mock) */}
@@ -184,17 +89,6 @@ export const Settings: React.FC = () => {
             <Info size={20} />
           </div>
           <div className="font-gujarati font-medium">{t('nav.help' as any)}</div>
-        </GlassCard>
-
-        {/* About */}
-        <GlassCard className="p-4 flex items-center gap-3 cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-acc/10 flex items-center justify-center text-acc">
-            <Info size={20} />
-          </div>
-          <div>
-            <div className="font-gujarati font-medium">{t('settings.about' as any)}</div>
-            <div className="text-xs text-sub font-num">v6.0.0</div>
-          </div>
         </GlassCard>
       </div>
     </div>

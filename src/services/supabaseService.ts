@@ -142,3 +142,11 @@ export function isDuplicateReportError(err: unknown): boolean {
   const msg = (err as any)?.message || '';
   return msg.startsWith('DUPLICATE_REPORT:') || msg.includes('DUPLICATE_REPORT');
 }
+
+export function mapSupabaseError(err: unknown): string {
+  if (!err) return 'અજ્ઞાત ભૂલ';
+  const msg = (err as any)?.message || String(err);
+  if (msg.includes('duplicate key') || msg.includes('unique constraint')) return 'આ નામનો હલકો પહેલેથી છે ✅';
+  if (msg.includes('Unauthorized')) return 'કોડ માન્ય નથી અથવા રદ થયેલ છે ❌';
+  return 'ભૂલ આવી: નેટવર્ક ચકાસો';
+}
