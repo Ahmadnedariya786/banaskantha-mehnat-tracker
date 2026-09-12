@@ -81,7 +81,7 @@ export const supabaseService = {
     }
   },
   async listHalqas() {
-    const { data, error } = await supabase.from('halqas').select('*').order('created_at', { ascending: true });
+    const { data, error } = await supabase.from('halqas').select('id, name').order('created_at', { ascending: true });
     if (error) throw error;
     return data;
   },
@@ -145,8 +145,10 @@ export function isDuplicateReportError(err: unknown): boolean {
 
 export function mapSupabaseError(err: unknown): string {
   if (!err) return 'અજ્ઞાત ભૂલ';
-  const msg = (err as any)?.message || String(err);
-  if (msg.includes('duplicate key') || msg.includes('unique constraint')) return 'આ નામનો હલકો પહેલેથી છે ✅';
+  const anyErr = err as any;
+  const msg = anyErr?.message || String(err);
+  const code = anyErr?.code;
+  if (code === '23505' || msg.includes('duplicate') || msg.includes('unique constraint')) return 'આ નામનો હલકો પહેલેથી છે ✅';
   if (msg.includes('Unauthorized')) return 'કોડ માન્ય નથી અથવા રદ થયેલ છે ❌';
   return 'ભૂલ આવી: નેટવર્ક ચકાસો';
 }

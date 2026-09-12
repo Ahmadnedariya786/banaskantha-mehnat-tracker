@@ -118,10 +118,11 @@ export const useAppStore = create<AppState>()(
             supabaseService.listReports(),
             supabaseService.listHalqas()
           ])
+          const DEFAULT_HALQAS = ['પાલનપુર', 'ડીસા', 'ધાનેરા', 'થરાદ'];
           set({ 
             reports, 
             halqas,
-            customHalqas: halqas.filter(h => h.is_custom).map(h => h.name),
+            customHalqas: halqas.filter(h => !DEFAULT_HALQAS.includes(h.name)).map(h => h.name),
             isLoading: false 
           })
         } catch (err) {

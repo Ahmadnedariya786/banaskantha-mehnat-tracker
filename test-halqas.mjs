@@ -5,7 +5,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data, error } = await supabase.from('halqas').select('id, name, is_custom').order('name');
+  const { data, error } = await supabase.from('halqas').select('id, name, is_custom, created_at').order('created_at');
   if (error) {
     console.error(error);
   } else {
